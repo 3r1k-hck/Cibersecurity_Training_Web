@@ -1,0 +1,2 @@
+[functions.seed-users]
+verify_jwt = false
