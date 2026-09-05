@@ -43,8 +43,8 @@ export default function AuthScreen() {
       const res = await login(email, password);
       if (!res.ok) {
         setError(res.error ?? 'Error al iniciar sesion.');
-        setSubmitting(false);
       }
+      setSubmitting(false);
     }
   }
 

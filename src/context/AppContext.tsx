@@ -3,6 +3,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from 'react';
@@ -124,6 +125,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [apiLogs, setApiLogs] = useState<ApiLogEntry[]>([]);
   const [commits, setCommits] = useState<GitCommit[]>([]);
   const [loading, setLoading] = useState(true);
+  const currentUserRef = useRef<User | null>(null);
+
+  useEffect(() => {
+    currentUserRef.current = currentUser;
+  }, [currentUser]);
 
   // Auth state listener + initial load
   useEffect(() => {
@@ -137,43 +143,43 @@ export function AppProvider({ children }: { children: ReactNode }) {
     supabase.auth.onAuthStateChange((event, session) => {
       (async () => {
         try {
-          if (!session?.user) {
-            if (mounted) {
-              setCurrentUser(null);
-              setLoading(false);
+          // Only handle initial session load and sign-out.
+          // Login flow handles profile loading directly in login().
+          if (event === 'INITIAL_SESSION' || event === 'SIGNED_OUT') {
+            if (!session?.user) {
+              if (mounted) {
+                setCurrentUser(null);
+                currentUserRef.current = null;
+                setLoading(false);
+              }
+              return;
             }
-            return;
-          }
+            if (mounted && !currentUserRef.current) {
+              const { data: profile, error: profileError } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', session.user.id)
+                .maybeSingle();
 
-          const { data: profile, error: profileError } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', session.user.id)
-            .maybeSingle();
+              if (profileError) {
+                console.error('Error loading profile:', profileError.message);
+              }
 
-          if (profileError) {
-            console.error('Error loading profile:', profileError.message);
-          }
+              if (!profile || !mounted) {
+                if (mounted) {
+                  setCurrentUser(null);
+                  currentUserRef.current = null;
+                  setLoading(false);
+                }
+                return;
+              }
 
-          if (!profile || !mounted) {
-            if (mounted) {
-              setCurrentUser(null);
-              setLoading(false);
+              const user = toUser(profile as ProfileRow, session.user.email ?? '');
+              setCurrentUser(user);
+              currentUserRef.current = user;
+              await loadData(user);
             }
-            return;
           }
-
-          const user = toUser(profile as ProfileRow, session.user.email ?? '');
-          setCurrentUser(user);
-
-          if (event === 'SIGNED_IN') {
-            await supabase
-              .from('profiles')
-              .update({ last_active: new Date().toISOString() })
-              .eq('id', user.id);
-          }
-
-          await loadData(user);
         } catch (err) {
           console.error('Auth state change error:', err);
         } finally {
@@ -315,6 +321,30 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
 
     if (data.user) {
+      try {
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', data.user.id)
+          .maybeSingle();
+
+        if (profileError || !profile) {
+          return { ok: false, error: 'No se pudo cargar el perfil de usuario.' };
+        }
+
+        const user = toUser(profile as ProfileRow, email);
+        setCurrentUser(user);
+        currentUserRef.current = user;
+
+        supabase
+          .from('profiles')
+          .update({ last_active: new Date().toISOString() })
+          .eq('id', user.id)
+          .then(() => loadData(user));
+      } catch {
+        // onAuthStateChange will handle it as fallback
+      }
+
       Promise.allSettled([
         insertApiLog(
           data.user.id,
@@ -349,6 +379,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
     await supabase.auth.signOut();
     setCurrentUser(null);
+    currentUserRef.current = null;
     setRecords([]);
     setApiLogs([]);
     setCommits([]);
