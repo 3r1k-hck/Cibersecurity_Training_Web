@@ -83,16 +83,20 @@ async function insertApiLog(
   body: Record<string, unknown>,
   headers: Record<string, string>,
 ) {
-  await supabase.from('api_logs').insert({
-    user_id: userId,
-    method,
-    endpoint,
-    status: 200,
-    headers,
-    body,
-    response: { ok: true, received: true },
-    username,
-  });
+  try {
+    await supabase.from('api_logs').insert({
+      user_id: userId,
+      method,
+      endpoint,
+      status: 200,
+      headers,
+      body,
+      response: { ok: true, received: true },
+      username,
+    });
+  } catch (err) {
+    console.error('Failed to insert API log:', err);
+  }
 }
 
 async function insertCommit(
@@ -101,13 +105,17 @@ async function insertCommit(
   message: string,
   type: GitCommit['type'] = 'feat',
 ) {
-  await supabase.from('audit_commits').insert({
-    hash: gitHash(),
-    author,
-    message,
-    type,
-    user_id: userId,
-  });
+  try {
+    await supabase.from('audit_commits').insert({
+      hash: gitHash(),
+      author,
+      message,
+      type,
+      user_id: userId,
+    });
+  } catch (err) {
+    console.error('Failed to insert audit commit:', err);
+  }
 }
 
 export function AppProvider({ children }: { children: ReactNode }) {
@@ -121,47 +129,64 @@ export function AppProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     let mounted = true;
 
+    // Safety timeout: if onAuthStateChange doesn't fire within 5s, stop loading
+    const safetyTimer = setTimeout(() => {
+      if (mounted) setLoading(false);
+    }, 5000);
+
     supabase.auth.onAuthStateChange((event, session) => {
       (async () => {
-        if (!session?.user) {
-          if (mounted) {
-            setCurrentUser(null);
-            setLoading(false);
+        try {
+          if (!session?.user) {
+            if (mounted) {
+              setCurrentUser(null);
+              setLoading(false);
+            }
+            return;
           }
-          return;
-        }
 
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', session.user.id)
-          .maybeSingle();
-
-        if (!profile || !mounted) {
-          if (mounted) setLoading(false);
-          return;
-        }
-
-        const user = toUser(profile as ProfileRow, session.user.email ?? '');
-        setCurrentUser(user);
-
-        if (event === 'SIGNED_IN') {
-          await supabase
+          const { data: profile, error: profileError } = await supabase
             .from('profiles')
-            .update({ last_active: new Date().toISOString() })
-            .eq('id', user.id);
-        }
+            .select('*')
+            .eq('id', session.user.id)
+            .maybeSingle();
 
-        await loadData(user);
-        if (mounted) setLoading(false);
+          if (profileError) {
+            console.error('Error loading profile:', profileError.message);
+          }
+
+          if (!profile || !mounted) {
+            if (mounted) {
+              setCurrentUser(null);
+              setLoading(false);
+            }
+            return;
+          }
+
+          const user = toUser(profile as ProfileRow, session.user.email ?? '');
+          setCurrentUser(user);
+
+          if (event === 'SIGNED_IN') {
+            await supabase
+              .from('profiles')
+              .update({ last_active: new Date().toISOString() })
+              .eq('id', user.id);
+          }
+
+          await loadData(user);
+        } catch (err) {
+          console.error('Auth state change error:', err);
+        } finally {
+          if (mounted) setLoading(false);
+        }
       })();
     });
 
-    return () => { mounted = false; };
+    return () => { mounted = false; clearTimeout(safetyTimer); };
   }, []);
 
   async function loadData(user: User) {
-    await Promise.all([
+    await Promise.allSettled([
       loadRecords(user),
       loadApiLogs(user),
       loadCommits(user),
@@ -256,23 +281,24 @@ export function AppProvider({ children }: { children: ReactNode }) {
       // Wait a moment for the trigger to create the profile
       await new Promise((r) => setTimeout(r, 500));
 
-      await insertApiLog(
-        data.user.id,
-        input.username,
-        'POST',
-        '/api/v1/auth/register',
-        { username: input.username, email: input.email, role: 'user' },
-        {
-          'Content-Type': 'application/json',
-          Authorization: 'Bearer <session-token>',
-        },
-      );
-
-      await insertCommit(
-        data.user.id,
-        'system@webhook.github.com',
-        `feat: registrar nuevo usuario '${input.username}'`,
-      );
+      Promise.allSettled([
+        insertApiLog(
+          data.user.id,
+          input.username,
+          'POST',
+          '/api/v1/auth/register',
+          { username: input.username, email: input.email, role: 'user' },
+          {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer <session-token>',
+          },
+        ),
+        insertCommit(
+          data.user.id,
+          'system@webhook.github.com',
+          `feat: registrar nuevo usuario '${input.username}'`,
+        ),
+      ]);
     }
 
     return { ok: true };
@@ -289,23 +315,24 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
 
     if (data.user) {
-      await insertApiLog(
-        data.user.id,
-        email,
-        'POST',
-        '/api/v1/auth/login',
-        { email, status: 'authenticated' },
-        {
-          'Content-Type': 'application/json',
-          Authorization: 'Basic <base64-credentials>',
-        },
-      );
-
-      await insertCommit(
-        data.user.id,
-        `${email}@cybtrain.io`,
-        `feat: usuario '${email.split('@')[0]}' inicio sesion en la plataforma`,
-      );
+      Promise.allSettled([
+        insertApiLog(
+          data.user.id,
+          email,
+          'POST',
+          '/api/v1/auth/login',
+          { email, status: 'authenticated' },
+          {
+            'Content-Type': 'application/json',
+            Authorization: 'Basic <base64-credentials>',
+          },
+        ),
+        insertCommit(
+          data.user.id,
+          `${email}@cybtrain.io`,
+          `feat: usuario '${email.split('@')[0]}' inicio sesion en la plataforma`,
+        ),
+      ]);
     }
 
     return { ok: true };
