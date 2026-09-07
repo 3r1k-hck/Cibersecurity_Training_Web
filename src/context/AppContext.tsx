@@ -143,42 +143,49 @@ export function AppProvider({ children }: { children: ReactNode }) {
     supabase.auth.onAuthStateChange((event, session) => {
       (async () => {
         try {
-          // Only handle initial session load and sign-out.
-          // Login flow handles profile loading directly in login().
-          if (event === 'INITIAL_SESSION' || event === 'SIGNED_OUT') {
-            if (!session?.user) {
-              if (mounted) {
-                setCurrentUser(null);
-                currentUserRef.current = null;
-                setLoading(false);
-              }
+          // Only handle initial session load, session restore, and sign-out.
+          // Login/register handle profile loading directly.
+          if (event === 'SIGNED_OUT') {
+            if (mounted) {
+              setCurrentUser(null);
+              currentUserRef.current = null;
+              setRecords([]);
+              setApiLogs([]);
+              setCommits([]);
+              setLoading(false);
+            }
+            return;
+          }
+
+          if (!session?.user) {
+            if (mounted) {
+              setCurrentUser(null);
+              setLoading(false);
+            }
+            return;
+          }
+
+          // INITIAL_SESSION or TOKEN_REFRESHED with a session but no user loaded yet
+          if (mounted && !currentUserRef.current && (event === 'INITIAL_SESSION' || event === 'TOKEN_REFRESHED')) {
+            const { data: profile, error: profileError } = await supabase
+              .from('profiles')
+              .select('*')
+              .eq('id', session.user.id)
+              .maybeSingle();
+
+            if (profileError) {
+              console.error('Error loading profile:', profileError.message);
+            }
+
+            if (!profile || !mounted) {
+              if (mounted) setLoading(false);
               return;
             }
-            if (mounted && !currentUserRef.current) {
-              const { data: profile, error: profileError } = await supabase
-                .from('profiles')
-                .select('*')
-                .eq('id', session.user.id)
-                .maybeSingle();
 
-              if (profileError) {
-                console.error('Error loading profile:', profileError.message);
-              }
-
-              if (!profile || !mounted) {
-                if (mounted) {
-                  setCurrentUser(null);
-                  currentUserRef.current = null;
-                  setLoading(false);
-                }
-                return;
-              }
-
-              const user = toUser(profile as ProfileRow, session.user.email ?? '');
-              setCurrentUser(user);
-              currentUserRef.current = user;
-              await loadData(user);
-            }
+            const user = toUser(profile as ProfileRow, session.user.email ?? '');
+            setCurrentUser(user);
+            currentUserRef.current = user;
+            await loadData(user);
           }
         } catch (err) {
           console.error('Auth state change error:', err);
@@ -283,29 +290,66 @@ export function AppProvider({ children }: { children: ReactNode }) {
       return { ok: false, error: translateAuthError(error.message) };
     }
 
-    if (data.user) {
-      // Wait a moment for the trigger to create the profile
-      await new Promise((r) => setTimeout(r, 500));
-
-      Promise.allSettled([
-        insertApiLog(
-          data.user.id,
-          input.username,
-          'POST',
-          '/api/v1/auth/register',
-          { username: input.username, email: input.email, role: 'user' },
-          {
-            'Content-Type': 'application/json',
-            Authorization: 'Bearer <session-token>',
-          },
-        ),
-        insertCommit(
-          data.user.id,
-          'system@webhook.github.com',
-          `feat: registrar nuevo usuario '${input.username}'`,
-        ),
-      ]);
+    if (!data.user) {
+      return { ok: false, error: 'No se pudo crear la cuenta.' };
     }
+
+    // Wait for the trigger to create the profile
+    await new Promise((r) => setTimeout(r, 800));
+
+    // Retry profile lookup
+    let profile = null;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const res = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', data.user.id)
+        .maybeSingle();
+      profile = res.data;
+      if (profile) break;
+      await new Promise((r) => setTimeout(r, 300));
+    }
+
+    if (!profile) {
+      // Trigger didn't create profile — create manually as fallback
+      const { data: newProfile } = await supabase
+        .from('profiles')
+        .insert({
+          id: data.user.id,
+          username: input.username,
+          role: 'user',
+        })
+        .select()
+        .maybeSingle();
+      profile = newProfile;
+    }
+
+    if (profile) {
+      const user = toUser(profile as ProfileRow, input.email);
+      setCurrentUser(user);
+      currentUserRef.current = user;
+      setLoading(false);
+      loadData(user);
+    }
+
+    Promise.allSettled([
+      insertApiLog(
+        data.user.id,
+        input.username,
+        'POST',
+        '/api/v1/auth/register',
+        { username: input.username, email: input.email, role: 'user' },
+        {
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer <session-token>',
+        },
+      ),
+      insertCommit(
+        data.user.id,
+        'system@webhook.github.com',
+        `feat: registrar nuevo usuario '${input.username}'`,
+      ),
+    ]);
 
     return { ok: true };
   }
@@ -320,50 +364,80 @@ export function AppProvider({ children }: { children: ReactNode }) {
       return { ok: false, error: translateAuthError(error.message) };
     }
 
-    if (data.user) {
-      try {
-        const { data: profile, error: profileError } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', data.user.id)
-          .maybeSingle();
+    if (!data.user) {
+      return { ok: false, error: 'No se recibio informacion del usuario.' };
+    }
 
-        if (profileError || !profile) {
-          return { ok: false, error: 'No se pudo cargar el perfil de usuario.' };
-        }
+    // Retry profile lookup — RLS needs the session token which may not be ready instantly
+    let profile = null;
+    let profileError = null;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const res = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', data.user.id)
+        .maybeSingle();
+      profile = res.data;
+      profileError = res.error;
+      if (profile) break;
+      // Wait 300ms before retrying
+      await new Promise((r) => setTimeout(r, 300));
+    }
 
-        const user = toUser(profile as ProfileRow, email);
-        setCurrentUser(user);
-        currentUserRef.current = user;
+    if (profileError) {
+      return { ok: false, error: `Error al cargar perfil: ${profileError.message}` };
+    }
 
-        supabase
-          .from('profiles')
-          .update({ last_active: new Date().toISOString() })
-          .eq('id', user.id)
-          .then(() => loadData(user));
-      } catch {
-        // onAuthStateChange will handle it as fallback
+    if (!profile) {
+      // Profile doesn't exist yet — create it manually as fallback
+      const username = email.split('@')[0];
+      const { data: newProfile, error: insertError } = await supabase
+        .from('profiles')
+        .insert({
+          id: data.user.id,
+          username,
+          role: email === 'admin@cybtrain.io' ? 'admin' : 'user',
+        })
+        .select()
+        .maybeSingle();
+
+      if (insertError || !newProfile) {
+        return { ok: false, error: 'Tu cuenta no tiene perfil. Contacta al administrador.' };
       }
 
-      Promise.allSettled([
-        insertApiLog(
-          data.user.id,
-          email,
-          'POST',
-          '/api/v1/auth/login',
-          { email, status: 'authenticated' },
-          {
-            'Content-Type': 'application/json',
-            Authorization: 'Basic <base64-credentials>',
-          },
-        ),
-        insertCommit(
-          data.user.id,
-          `${email}@cybtrain.io`,
-          `feat: usuario '${email.split('@')[0]}' inicio sesion en la plataforma`,
-        ),
-      ]);
+      profile = newProfile;
     }
+
+    const user = toUser(profile as ProfileRow, email);
+    setCurrentUser(user);
+    currentUserRef.current = user;
+    setLoading(false);
+
+    // Fire-and-forget: update last_active and load dashboard data
+    supabase
+      .from('profiles')
+      .update({ last_active: new Date().toISOString() })
+      .eq('id', user.id)
+      .then(() => loadData(user));
+
+    Promise.allSettled([
+      insertApiLog(
+        data.user.id,
+        email,
+        'POST',
+        '/api/v1/auth/login',
+        { email, status: 'authenticated' },
+        {
+          'Content-Type': 'application/json',
+          Authorization: 'Basic <base64-credentials>',
+        },
+      ),
+      insertCommit(
+        data.user.id,
+        `${email}@cybtrain.io`,
+        `feat: usuario '${email.split('@')[0]}' inicio sesion en la plataforma`,
+      ),
+    ]);
 
     return { ok: true };
   }
