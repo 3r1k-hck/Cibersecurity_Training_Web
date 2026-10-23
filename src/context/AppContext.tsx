@@ -127,9 +127,7 @@ async function fetchProfile(userId: string): Promise<ProfileRow | null> {
     .maybeSingle();
 
   if (error) {
-    console.error('[auth] Profile query error:', error.message);
-  } else {
-    console.log('[auth] Profile query result:', data ? 'found' : 'null');
+    console.error('Profile query error:', error.message);
   }
 
   return data as ProfileRow | null;
@@ -155,12 +153,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }, 5000);
 
     supabase.auth.onAuthStateChange((event, session) => {
-      console.log('[auth] onAuthStateChange:', event, session?.user?.id ?? 'no user');
       (async () => {
         try {
           if (event === 'SIGNED_OUT' || !session?.user) {
             if (mounted) {
-              console.log('[auth] Clearing user state');
               setCurrentUser(null);
               setRecords([]);
               setApiLogs([]);
@@ -176,7 +172,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
             // Check current state to avoid overriding login()
             const currentUserState = currentUserRef.current;
             if (currentUserState && currentUserState.id === session.user.id) {
-              console.log('[auth] User already loaded, skipping');
               setLoading(false);
               return;
             }
@@ -185,7 +180,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
             if (!profile) {
               // Profile doesn't exist — create it as fallback
-              console.log('[auth] Profile not found, creating fallback');
               const username = (session.user.user_metadata as Record<string, string>)?.username
                 ?? session.user.email?.split('@')[0]
                 ?? 'usuario';
@@ -200,7 +194,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
                 .maybeSingle();
 
               if (insertError) {
-                console.error('[auth] Fallback profile insert error:', insertError.message);
+                console.error('Fallback profile insert error:', insertError.message);
               }
 
               if (newProfile && mounted) {
@@ -210,7 +204,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
                 await loadData(user);
               }
             } else if (mounted) {
-              console.log('[auth] Profile found in onAuthStateChange');
               const user = toUser(profile, session.user.email ?? '');
               currentUserRef.current = user;
               setCurrentUser(user);
@@ -218,7 +211,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
             }
           }
         } catch (err) {
-          console.error('[auth] Auth state change error:', err);
+          console.error('Auth state change error:', err);
         } finally {
           if (mounted) setLoading(false);
         }
@@ -347,22 +340,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }
 
   async function login(email: string, password: string): Promise<{ ok: boolean; error?: string }> {
-    console.log('[auth] login() called for', email);
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
 
     if (error) {
-      console.error('[auth] signInWithPassword error:', error.message);
       return { ok: false, error: translateAuthError(error.message) };
     }
 
-    console.log('[auth] signInWithPassword success, user:', data.user?.id);
-
     // Get the session explicitly to make sure the token is ready
-    const { data: sessionData } = await supabase.auth.getSession();
-    console.log('[auth] getSession result:', sessionData.session ? 'has session' : 'no session');
+    await supabase.auth.getSession();
 
     if (!data.user) {
       return { ok: false, error: 'No se recibio informacion del usuario.' };
@@ -372,7 +360,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const profile = await fetchProfile(data.user.id);
 
     if (profile) {
-      console.log('[auth] Profile found, setting current user');
       const user = toUser(profile, email);
       currentUserRef.current = user;
       setCurrentUser(user);
@@ -403,8 +390,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
           `feat: usuario '${email.split('@')[0]}' inicio sesion en la plataforma`,
         ),
       ]);
-    } else {
-      console.log('[auth] Profile not found after login, onAuthStateChange will retry');
     }
 
     return { ok: true };
