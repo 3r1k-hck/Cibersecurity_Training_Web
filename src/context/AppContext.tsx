@@ -3,6 +3,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from 'react';
@@ -126,7 +127,9 @@ async function fetchProfile(userId: string): Promise<ProfileRow | null> {
     .maybeSingle();
 
   if (error) {
-    console.error('Profile query error:', error.message);
+    console.error('[auth] Profile query error:', error.message);
+  } else {
+    console.log('[auth] Profile query result:', data ? 'found' : 'null');
   }
 
   return data as ProfileRow | null;
@@ -138,6 +141,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [apiLogs, setApiLogs] = useState<ApiLogEntry[]>([]);
   const [commits, setCommits] = useState<GitCommit[]>([]);
   const [loading, setLoading] = useState(true);
+  const currentUserRef = useRef<User | null>(null);
+
+  useEffect(() => {
+    currentUserRef.current = currentUser;
+  }, [currentUser]);
 
   useEffect(() => {
     let mounted = true;
@@ -147,10 +155,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }, 5000);
 
     supabase.auth.onAuthStateChange((event, session) => {
+      console.log('[auth] onAuthStateChange:', event, session?.user?.id ?? 'no user');
       (async () => {
         try {
           if (event === 'SIGNED_OUT' || !session?.user) {
             if (mounted) {
+              console.log('[auth] Clearing user state');
               setCurrentUser(null);
               setRecords([]);
               setApiLogs([]);
@@ -160,17 +170,26 @@ export function AppProvider({ children }: { children: ReactNode }) {
             return;
           }
 
-          // For all events with a session (INITIAL_SESSION, SIGNED_IN, TOKEN_REFRESHED),
-          // load the profile if we don't have a user yet
+          // For all events with a session, load profile if we don't have a user yet.
+          // If login() already set the user, don't override it.
           if (mounted) {
+            // Check current state to avoid overriding login()
+            const currentUserState = currentUserRef.current;
+            if (currentUserState && currentUserState.id === session.user.id) {
+              console.log('[auth] User already loaded, skipping');
+              setLoading(false);
+              return;
+            }
+
             const profile = await fetchProfile(session.user.id);
 
             if (!profile) {
               // Profile doesn't exist — create it as fallback
+              console.log('[auth] Profile not found, creating fallback');
               const username = (session.user.user_metadata as Record<string, string>)?.username
                 ?? session.user.email?.split('@')[0]
                 ?? 'usuario';
-              const { data: newProfile } = await supabase
+              const { data: newProfile, error: insertError } = await supabase
                 .from('profiles')
                 .insert({
                   id: session.user.id,
@@ -180,19 +199,26 @@ export function AppProvider({ children }: { children: ReactNode }) {
                 .select()
                 .maybeSingle();
 
+              if (insertError) {
+                console.error('[auth] Fallback profile insert error:', insertError.message);
+              }
+
               if (newProfile && mounted) {
                 const user = toUser(newProfile as ProfileRow, session.user.email ?? '');
+                currentUserRef.current = user;
                 setCurrentUser(user);
                 await loadData(user);
               }
             } else if (mounted) {
+              console.log('[auth] Profile found in onAuthStateChange');
               const user = toUser(profile, session.user.email ?? '');
+              currentUserRef.current = user;
               setCurrentUser(user);
               await loadData(user);
             }
           }
         } catch (err) {
-          console.error('Auth state change error:', err);
+          console.error('[auth] Auth state change error:', err);
         } finally {
           if (mounted) setLoading(false);
         }
@@ -321,25 +347,34 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }
 
   async function login(email: string, password: string): Promise<{ ok: boolean; error?: string }> {
+    console.log('[auth] login() called for', email);
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
 
     if (error) {
+      console.error('[auth] signInWithPassword error:', error.message);
       return { ok: false, error: translateAuthError(error.message) };
     }
+
+    console.log('[auth] signInWithPassword success, user:', data.user?.id);
+
+    // Get the session explicitly to make sure the token is ready
+    const { data: sessionData } = await supabase.auth.getSession();
+    console.log('[auth] getSession result:', sessionData.session ? 'has session' : 'no session');
 
     if (!data.user) {
       return { ok: false, error: 'No se recibio informacion del usuario.' };
     }
 
-    // onAuthStateChange will fire SIGNED_IN and handle profile + dashboard loading.
-    // But we also load the profile here for immediate feedback.
+    // Try to load the profile directly
     const profile = await fetchProfile(data.user.id);
 
     if (profile) {
+      console.log('[auth] Profile found, setting current user');
       const user = toUser(profile, email);
+      currentUserRef.current = user;
       setCurrentUser(user);
       setLoading(false);
       loadData(user);
@@ -368,10 +403,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
           `feat: usuario '${email.split('@')[0]}' inicio sesion en la plataforma`,
         ),
       ]);
+    } else {
+      console.log('[auth] Profile not found after login, onAuthStateChange will retry');
     }
 
-    // If profile is null, onAuthStateChange will create it as fallback.
-    // Either way, return success — the auth state listener handles the rest.
     return { ok: true };
   }
 
@@ -385,6 +420,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       );
     }
     await supabase.auth.signOut();
+    currentUserRef.current = null;
     setCurrentUser(null);
     setRecords([]);
     setApiLogs([]);
