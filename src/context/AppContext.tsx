@@ -3,7 +3,6 @@ import {
   useContext,
   useEffect,
   useMemo,
-  useRef,
   useState,
   type ReactNode,
 } from 'react';
@@ -119,23 +118,30 @@ async function insertCommit(
   }
 }
 
+async function fetchProfile(userId: string): Promise<ProfileRow | null> {
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', userId)
+    .maybeSingle();
+
+  if (error) {
+    console.error('Profile query error:', error.message);
+  }
+
+  return data as ProfileRow | null;
+}
+
 export function AppProvider({ children }: { children: ReactNode }) {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [records, setRecords] = useState<UserRecord[]>([]);
   const [apiLogs, setApiLogs] = useState<ApiLogEntry[]>([]);
   const [commits, setCommits] = useState<GitCommit[]>([]);
   const [loading, setLoading] = useState(true);
-  const currentUserRef = useRef<User | null>(null);
 
-  useEffect(() => {
-    currentUserRef.current = currentUser;
-  }, [currentUser]);
-
-  // Auth state listener + initial load
   useEffect(() => {
     let mounted = true;
 
-    // Safety timeout: if onAuthStateChange doesn't fire within 5s, stop loading
     const safetyTimer = setTimeout(() => {
       if (mounted) setLoading(false);
     }, 5000);
@@ -143,12 +149,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
     supabase.auth.onAuthStateChange((event, session) => {
       (async () => {
         try {
-          // Only handle initial session load, session restore, and sign-out.
-          // Login/register handle profile loading directly.
-          if (event === 'SIGNED_OUT') {
+          if (event === 'SIGNED_OUT' || !session?.user) {
             if (mounted) {
               setCurrentUser(null);
-              currentUserRef.current = null;
               setRecords([]);
               setApiLogs([]);
               setCommits([]);
@@ -157,35 +160,36 @@ export function AppProvider({ children }: { children: ReactNode }) {
             return;
           }
 
-          if (!session?.user) {
-            if (mounted) {
-              setCurrentUser(null);
-              setLoading(false);
+          // For all events with a session (INITIAL_SESSION, SIGNED_IN, TOKEN_REFRESHED),
+          // load the profile if we don't have a user yet
+          if (mounted) {
+            const profile = await fetchProfile(session.user.id);
+
+            if (!profile) {
+              // Profile doesn't exist — create it as fallback
+              const username = (session.user.user_metadata as Record<string, string>)?.username
+                ?? session.user.email?.split('@')[0]
+                ?? 'usuario';
+              const { data: newProfile } = await supabase
+                .from('profiles')
+                .insert({
+                  id: session.user.id,
+                  username,
+                  role: session.user.email === 'admin@cybtrain.io' ? 'admin' : 'user',
+                })
+                .select()
+                .maybeSingle();
+
+              if (newProfile && mounted) {
+                const user = toUser(newProfile as ProfileRow, session.user.email ?? '');
+                setCurrentUser(user);
+                await loadData(user);
+              }
+            } else if (mounted) {
+              const user = toUser(profile, session.user.email ?? '');
+              setCurrentUser(user);
+              await loadData(user);
             }
-            return;
-          }
-
-          // INITIAL_SESSION or TOKEN_REFRESHED with a session but no user loaded yet
-          if (mounted && !currentUserRef.current && (event === 'INITIAL_SESSION' || event === 'TOKEN_REFRESHED')) {
-            const { data: profile, error: profileError } = await supabase
-              .from('profiles')
-              .select('*')
-              .eq('id', session.user.id)
-              .maybeSingle();
-
-            if (profileError) {
-              console.error('Error loading profile:', profileError.message);
-            }
-
-            if (!profile || !mounted) {
-              if (mounted) setLoading(false);
-              return;
-            }
-
-            const user = toUser(profile as ProfileRow, session.user.email ?? '');
-            setCurrentUser(user);
-            currentUserRef.current = user;
-            await loadData(user);
           }
         } catch (err) {
           console.error('Auth state change error:', err);
@@ -244,8 +248,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
       };
     });
 
-    // Fill in emails from auth — not available via profile table, so we leave blank
-    // unless it's the current user
     const enriched = recs.map((r) =>
       r.id === user.id ? { ...r, email: user.email } : r,
     );
@@ -294,43 +296,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       return { ok: false, error: 'No se pudo crear la cuenta.' };
     }
 
-    // Wait for the trigger to create the profile
-    await new Promise((r) => setTimeout(r, 800));
-
-    // Retry profile lookup
-    let profile = null;
-    for (let attempt = 0; attempt < 3; attempt++) {
-      const res = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', data.user.id)
-        .maybeSingle();
-      profile = res.data;
-      if (profile) break;
-      await new Promise((r) => setTimeout(r, 300));
-    }
-
-    if (!profile) {
-      // Trigger didn't create profile — create manually as fallback
-      const { data: newProfile } = await supabase
-        .from('profiles')
-        .insert({
-          id: data.user.id,
-          username: input.username,
-          role: 'user',
-        })
-        .select()
-        .maybeSingle();
-      profile = newProfile;
-    }
-
-    if (profile) {
-      const user = toUser(profile as ProfileRow, input.email);
-      setCurrentUser(user);
-      currentUserRef.current = user;
-      setLoading(false);
-      loadData(user);
-    }
+    // onAuthStateChange will fire SIGNED_IN and handle profile + dashboard loading
 
     Promise.allSettled([
       insertApiLog(
@@ -368,77 +334,44 @@ export function AppProvider({ children }: { children: ReactNode }) {
       return { ok: false, error: 'No se recibio informacion del usuario.' };
     }
 
-    // Retry profile lookup — RLS needs the session token which may not be ready instantly
-    let profile = null;
-    let profileError = null;
-    for (let attempt = 0; attempt < 3; attempt++) {
-      const res = await supabase
+    // onAuthStateChange will fire SIGNED_IN and handle profile + dashboard loading.
+    // But we also load the profile here for immediate feedback.
+    const profile = await fetchProfile(data.user.id);
+
+    if (profile) {
+      const user = toUser(profile, email);
+      setCurrentUser(user);
+      setLoading(false);
+      loadData(user);
+
+      supabase
         .from('profiles')
-        .select('*')
-        .eq('id', data.user.id)
-        .maybeSingle();
-      profile = res.data;
-      profileError = res.error;
-      if (profile) break;
-      // Wait 300ms before retrying
-      await new Promise((r) => setTimeout(r, 300));
+        .update({ last_active: new Date().toISOString() })
+        .eq('id', user.id)
+        .then();
+
+      Promise.allSettled([
+        insertApiLog(
+          data.user.id,
+          email,
+          'POST',
+          '/api/v1/auth/login',
+          { email, status: 'authenticated' },
+          {
+            'Content-Type': 'application/json',
+            Authorization: 'Basic <base64-credentials>',
+          },
+        ),
+        insertCommit(
+          data.user.id,
+          `${email}@cybtrain.io`,
+          `feat: usuario '${email.split('@')[0]}' inicio sesion en la plataforma`,
+        ),
+      ]);
     }
 
-    if (profileError) {
-      return { ok: false, error: `Error al cargar perfil: ${profileError.message}` };
-    }
-
-    if (!profile) {
-      // Profile doesn't exist yet — create it manually as fallback
-      const username = email.split('@')[0];
-      const { data: newProfile, error: insertError } = await supabase
-        .from('profiles')
-        .insert({
-          id: data.user.id,
-          username,
-          role: email === 'admin@cybtrain.io' ? 'admin' : 'user',
-        })
-        .select()
-        .maybeSingle();
-
-      if (insertError || !newProfile) {
-        return { ok: false, error: 'Tu cuenta no tiene perfil. Contacta al administrador.' };
-      }
-
-      profile = newProfile;
-    }
-
-    const user = toUser(profile as ProfileRow, email);
-    setCurrentUser(user);
-    currentUserRef.current = user;
-    setLoading(false);
-
-    // Fire-and-forget: update last_active and load dashboard data
-    supabase
-      .from('profiles')
-      .update({ last_active: new Date().toISOString() })
-      .eq('id', user.id)
-      .then(() => loadData(user));
-
-    Promise.allSettled([
-      insertApiLog(
-        data.user.id,
-        email,
-        'POST',
-        '/api/v1/auth/login',
-        { email, status: 'authenticated' },
-        {
-          'Content-Type': 'application/json',
-          Authorization: 'Basic <base64-credentials>',
-        },
-      ),
-      insertCommit(
-        data.user.id,
-        `${email}@cybtrain.io`,
-        `feat: usuario '${email.split('@')[0]}' inicio sesion en la plataforma`,
-      ),
-    ]);
-
+    // If profile is null, onAuthStateChange will create it as fallback.
+    // Either way, return success — the auth state listener handles the rest.
     return { ok: true };
   }
 
@@ -453,7 +386,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
     await supabase.auth.signOut();
     setCurrentUser(null);
-    currentUserRef.current = null;
     setRecords([]);
     setApiLogs([]);
     setCommits([]);
