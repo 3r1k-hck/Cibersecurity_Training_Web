@@ -1,20 +1,28 @@
 import { useState } from 'react';
 import { Brain, CheckCircle2, XCircle, ArrowRight, RotateCcw, Trophy } from 'lucide-react';
-import { quizQuestions } from '@/lib/data';
+import { quizQuestions, type QuizQuestion } from '@/lib/data';
 import type { QuizAnswerRecord } from '@/types';
+
+const MAX_QUESTIONS = 10;
+
+function shuffleAndPick<T>(items: T[], count: number): T[] {
+  const shuffled = [...items].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, Math.min(count, items.length));
+}
 
 interface Props {
   onComplete: (score: number, answers: QuizAnswerRecord[]) => void;
 }
 
 export default function Quiz({ onComplete }: Props) {
+  const [questions, setQuestions] = useState<QuizQuestion[]>(() => shuffleAndPick(quizQuestions, MAX_QUESTIONS));
   const [idx, setIdx] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
   const [revealed, setRevealed] = useState(false);
   const [answers, setAnswers] = useState<QuizAnswerRecord[]>([]);
   const [finished, setFinished] = useState(false);
 
-  const q = quizQuestions[idx];
+  const q = questions[idx];
 
   function select(i: number) {
     if (revealed) return;
@@ -29,7 +37,7 @@ export default function Quiz({ onComplete }: Props) {
   }
 
   function next() {
-    if (idx + 1 >= quizQuestions.length) {
+    if (idx + 1 >= questions.length) {
       const score = answers.reduce((s, a) => (a.correct ? s + 1 : s), 0);
       setFinished(true);
       onComplete(score, answers);
@@ -41,6 +49,7 @@ export default function Quiz({ onComplete }: Props) {
   }
 
   function restart() {
+    setQuestions(shuffleAndPick(quizQuestions, MAX_QUESTIONS));
     setIdx(0);
     setSelected(null);
     setRevealed(false);
@@ -56,7 +65,7 @@ export default function Quiz({ onComplete }: Props) {
           <Trophy className="w-8 h-8 text-cyan-400" />
         </div>
         <h3 className="text-xl font-bold text-white">Quiz completado</h3>
-        <p className="text-slate-400 mt-2">Tu puntuacion: <span className="text-cyan-400 font-bold">{score}</span> / {quizQuestions.length}.</p>
+        <p className="text-slate-400 mt-2">Tu puntuacion: <span className="text-cyan-400 font-bold">{score}</span> / {questions.length}.</p>
         <button onClick={restart} className="mt-6 inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-300 bg-slate-800 hover:bg-slate-700 rounded-lg transition-colors">
           <RotateCcw className="w-4 h-4" /> Repetir Quiz
         </button>
@@ -71,12 +80,12 @@ export default function Quiz({ onComplete }: Props) {
           <Brain className="w-4 h-4 text-cyan-400" />
           <span>Quiz de Conocimiento de Seguridad</span>
         </div>
-        <span className="text-xs font-mono text-slate-500">{idx + 1} / {quizQuestions.length}</span>
+        <span className="text-xs font-mono text-slate-500">{idx + 1} / {questions.length}</span>
       </div>
 
       <div className="px-5 py-1.5 bg-slate-950/30">
         <div className="h-1.5 bg-slate-800 rounded-full overflow-hidden">
-          <div className="h-full bg-gradient-to-r from-cyan-500 to-emerald-500 transition-all duration-500" style={{ width: `${(idx / quizQuestions.length) * 100}%` }} />
+          <div className="h-full bg-gradient-to-r from-cyan-500 to-emerald-500 transition-all duration-500" style={{ width: `${(idx / questions.length) * 100}%` }} />
         </div>
       </div>
 
@@ -138,7 +147,7 @@ export default function Quiz({ onComplete }: Props) {
             onClick={next}
             className="w-full inline-flex items-center justify-center gap-2 py-2.5 bg-gradient-to-r from-cyan-500 to-emerald-600 text-white text-sm font-semibold rounded-lg hover:from-cyan-400 hover:to-emerald-500 transition-all"
           >
-            {idx + 1 >= quizQuestions.length ? 'Finalizar quiz' : 'Siguiente pregunta'} <ArrowRight className="w-4 h-4" />
+            {idx + 1 >= questions.length ? 'Finalizar quiz' : 'Siguiente pregunta'} <ArrowRight className="w-4 h-4" />
           </button>
         )}
       </div>

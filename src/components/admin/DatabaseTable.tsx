@@ -1,10 +1,10 @@
 import { useMemo, useState } from 'react';
 import { Database, Search, ChevronDown, ChevronUp } from 'lucide-react';
 import { useApp } from '@/context/AppContext';
-import { phishingEmails, quizQuestions } from '@/lib/data';
 import type { UserRecord } from '@/types';
 
-const maxTotal = phishingEmails.length + quizQuestions.length;
+const MAX_QUESTIONS = 10;
+const maxTotal = MAX_QUESTIONS * 2;
 
 export default function DatabaseTable() {
   const { records } = useApp();
@@ -134,8 +134,8 @@ function Row({ record, expanded, onToggle }: { record: UserRecord; expanded: boo
                 {record.sessions.slice().reverse().map((s, i) => (
                   <div key={i} className="flex flex-wrap items-center gap-3 text-xs bg-slate-900/60 border border-slate-800 rounded-lg px-3 py-2">
                     <span className="font-mono text-slate-500">{new Date(s.completedAt).toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' })}</span>
-                    <span className="text-emerald-400 font-mono">Phishing: {s.phishingScore}/{phishingEmails.length}</span>
-                    <span className="text-cyan-400 font-mono">Quiz: {s.quizScore}/{quizQuestions.length}</span>
+                    <span className="text-emerald-400 font-mono">Phishing: {s.phishingScore}/{MAX_QUESTIONS}</span>
+                    <span className="text-cyan-400 font-mono">Quiz: {s.quizScore}/{MAX_QUESTIONS}</span>
                     <span className="text-white font-mono ml-auto">Total: {s.totalScore}/{maxTotal}</span>
                   </div>
                 ))}

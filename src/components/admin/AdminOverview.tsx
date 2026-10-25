@@ -2,9 +2,9 @@ import { useMemo } from 'react';
 import { Users, Award, Activity, GitCommit } from 'lucide-react';
 import { useApp } from '@/context/AppContext';
 import { BarChart, DonutChart, LineChart } from '@/components/charts';
-import { phishingEmails, quizQuestions } from '@/lib/data';
 
-const maxTotal = phishingEmails.length + quizQuestions.length;
+const MAX_QUESTIONS = 10;
+const maxTotal = MAX_QUESTIONS * 2;
 
 export default function AdminOverview() {
   const { records, commits, apiLogs } = useApp();

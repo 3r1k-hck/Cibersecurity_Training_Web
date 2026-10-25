@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { ShieldCheck, Brain, TrendingUp, Award, Target } from 'lucide-react';
 import { useApp } from '@/context/AppContext';
 import { LineChart } from '@/components/charts';
-import { phishingEmails, quizQuestions } from '@/lib/data';
+const MAX_QUESTIONS = 10;
 
 export default function UserDashboard() {
   const { currentUser, records } = useApp();
@@ -28,7 +28,7 @@ export default function UserDashboard() {
     return myRecord.sessions.map((s, i) => ({ label: `S${i + 1}`, value: s.totalScore }));
   }, [myRecord]);
 
-  const maxTotal = phishingEmails.length + quizQuestions.length;
+  const maxTotal = MAX_QUESTIONS * 2;
 
   return (
     <div className="space-y-4">
@@ -52,8 +52,8 @@ export default function UserDashboard() {
         <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-5">
           <h3 className="text-sm font-semibold text-white mb-3">Desglose de la Ultima Sesion</h3>
           <div className="grid grid-cols-3 gap-3">
-            <MiniStat icon={<ShieldCheck className="w-4 h-4" />} label="Phishing" value={`${stats.last.phishing}/${phishingEmails.length}`} color="emerald" />
-            <MiniStat icon={<Brain className="w-4 h-4" />} label="Quiz" value={`${stats.last.quiz}/${quizQuestions.length}`} color="cyan" />
+            <MiniStat icon={<ShieldCheck className="w-4 h-4" />} label="Phishing" value={`${stats.last.phishing}/${MAX_QUESTIONS}`} color="emerald" />
+            <MiniStat icon={<Brain className="w-4 h-4" />} label="Quiz" value={`${stats.last.quiz}/${MAX_QUESTIONS}`} color="cyan" />
             <MiniStat icon={<Target className="w-4 h-4" />} label="Total" value={`${stats.last.total}/${maxTotal}`} color="blue" />
           </div>
         </div>

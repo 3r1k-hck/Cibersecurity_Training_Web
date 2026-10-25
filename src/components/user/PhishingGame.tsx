@@ -1,8 +1,15 @@
 import { useState } from 'react';
 import { Shield, Mail, CheckCircle2, XCircle, ArrowRight, Eye, Lightbulb, RotateCcw, Trophy } from 'lucide-react';
-import { phishingEmails } from '@/lib/data';
+import { phishingEmails, type PhishingEmail } from '@/lib/data';
 import type { PhishingAnswerRecord } from '@/types';
 import type { SessionResult } from '@/types';
+
+const MAX_QUESTIONS = 10;
+
+function shuffleAndPick<T>(items: T[], count: number): T[] {
+  const shuffled = [...items].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, Math.min(count, items.length));
+}
 
 interface Props {
   onComplete: (result: Pick<SessionResult, 'phishingScore' | 'phishingAnswers'>) => void;
@@ -10,13 +17,14 @@ interface Props {
 }
 
 export default function PhishingGame({ onComplete, bestScore }: Props) {
+  const [emails, setEmails] = useState<PhishingEmail[]>(() => shuffleAndPick(phishingEmails, MAX_QUESTIONS));
   const [idx, setIdx] = useState(0);
   const [answers, setAnswers] = useState<PhishingAnswerRecord[]>([]);
   const [revealed, setRevealed] = useState(false);
   const [lastChoice, setLastChoice] = useState<'phishing' | 'real' | null>(null);
   const [finished, setFinished] = useState(false);
 
-  const email = phishingEmails[idx];
+  const email = emails[idx];
 
   function choose(choice: 'phishing' | 'real') {
     if (revealed) return;
@@ -33,7 +41,7 @@ export default function PhishingGame({ onComplete, bestScore }: Props) {
   }
 
   function next() {
-    if (idx + 1 >= phishingEmails.length) {
+    if (idx + 1 >= emails.length) {
       const score = answers.reduce((s, a) => (a.correct ? s + 1 : s), 0);
       setFinished(true);
       onComplete({ phishingScore: score, phishingAnswers: answers });
@@ -45,6 +53,7 @@ export default function PhishingGame({ onComplete, bestScore }: Props) {
   }
 
   function restart() {
+    setEmails(shuffleAndPick(phishingEmails, MAX_QUESTIONS));
     setIdx(0);
     setAnswers([]);
     setRevealed(false);
@@ -60,13 +69,13 @@ export default function PhishingGame({ onComplete, bestScore }: Props) {
           <Trophy className="w-8 h-8 text-emerald-400" />
         </div>
         <h3 className="text-xl font-bold text-white">Modulo de Phishing Completado</h3>
-        <p className="text-slate-400 mt-2">Identificaste correctamente <span className="text-emerald-400 font-bold">{score}</span> de {phishingEmails.length} correos.</p>
+        <p className="text-slate-400 mt-2">Identificaste correctamente <span className="text-emerald-400 font-bold">{score}</span> de {emails.length} correos.</p>
         <div className="flex items-center justify-center gap-3 mt-6">
           <button onClick={restart} className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-300 bg-slate-800 hover:bg-slate-700 rounded-lg transition-colors">
             <RotateCcw className="w-4 h-4" /> Reintentar modulo
           </button>
         </div>
-        <p className="text-xs text-slate-600 mt-4">Tu mejor puntuacion hasta ahora: {bestScore} / {phishingEmails.length}</p>
+        <p className="text-xs text-slate-600 mt-4">Tu mejor puntuacion hasta ahora: {bestScore} / {MAX_QUESTIONS}</p>
       </div>
     );
   }
@@ -78,12 +87,12 @@ export default function PhishingGame({ onComplete, bestScore }: Props) {
           <Mail className="w-4 h-4 text-emerald-400" />
           <span>Simulador de Bandeja de Entrada</span>
         </div>
-        <span className="text-xs font-mono text-slate-500">{idx + 1} / {phishingEmails.length}</span>
+        <span className="text-xs font-mono text-slate-500">{idx + 1} / {emails.length}</span>
       </div>
 
       <div className="px-5 py-1.5 bg-slate-950/30">
         <div className="h-1.5 bg-slate-800 rounded-full overflow-hidden">
-          <div className="h-full bg-gradient-to-r from-emerald-500 to-cyan-500 transition-all duration-500" style={{ width: `${((idx) / phishingEmails.length) * 100}%` }} />
+          <div className="h-full bg-gradient-to-r from-emerald-500 to-cyan-500 transition-all duration-500" style={{ width: `${((idx) / emails.length) * 100}%` }} />
         </div>
       </div>
 
@@ -156,7 +165,7 @@ export default function PhishingGame({ onComplete, bestScore }: Props) {
               onClick={next}
               className="w-full inline-flex items-center justify-center gap-2 py-2.5 bg-gradient-to-r from-emerald-500 to-cyan-600 text-white text-sm font-semibold rounded-lg hover:from-emerald-400 hover:to-cyan-500 transition-all"
             >
-              {idx + 1 >= phishingEmails.length ? 'Finalizar modulo' : 'Siguiente correo'} <ArrowRight className="w-4 h-4" />
+              {idx + 1 >= emails.length ? 'Finalizar modulo' : 'Siguiente correo'} <ArrowRight className="w-4 h-4" />
             </button>
           </div>
         )}
