@@ -1,13 +1,14 @@
 import { useMemo, useState } from 'react';
-import { Mail, Brain, LayoutDashboard, LogOut, Shield, User as UserIcon, BookOpen } from 'lucide-react';
+import { Mail, Brain, LayoutDashboard, LogOut, Shield, User as UserIcon, BookOpen, Award } from 'lucide-react';
 import { useApp } from '@/context/AppContext';
 import PhishingGame from '@/components/user/PhishingGame';
 import Quiz from '@/components/user/Quiz';
 import QuestionBank from '@/components/user/QuestionBank';
 import UserDashboard from '@/components/user/UserDashboard';
+import CertificateHistory from '@/components/user/CertificateHistory';
 import type { PhishingAnswerRecord, QuizAnswerRecord, SessionResult } from '@/types';
 
-type Tab = 'phishing' | 'quiz' | 'bank' | 'dashboard';
+type Tab = 'phishing' | 'quiz' | 'bank' | 'certificates' | 'dashboard';
 
 export default function UserPanel() {
   const { currentUser, logout, saveSessionResult, records } = useApp();
@@ -53,6 +54,7 @@ export default function UserPanel() {
     { id: 'phishing', label: 'Juego de Phishing', icon: <Mail className="w-4 h-4" /> },
     { id: 'quiz', label: 'Quiz de Seguridad', icon: <Brain className="w-4 h-4" /> },
     { id: 'bank', label: 'Banco de Preguntas', icon: <BookOpen className="w-4 h-4" /> },
+    { id: 'certificates', label: 'Mis Certificados', icon: <Award className="w-4 h-4" /> },
     { id: 'dashboard', label: 'Mi Progreso', icon: <LayoutDashboard className="w-4 h-4" /> },
   ];
 
@@ -106,6 +108,7 @@ export default function UserPanel() {
           {tab === 'phishing' && <PhishingGame onComplete={handlePhishingComplete} bestScore={phishingBest} />}
           {tab === 'quiz' && <Quiz onComplete={handleQuizComplete} username={currentUser?.username ?? 'Empleado'} />}
           {tab === 'bank' && <QuestionBank />}
+          {tab === 'certificates' && <CertificateHistory />}
           {tab === 'dashboard' && <UserDashboard />}
         </div>
       </div>
