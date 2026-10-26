@@ -104,7 +104,7 @@ export default function UserPanel() {
 
         <div key={tab} className="animate-fade-up">
           {tab === 'phishing' && <PhishingGame onComplete={handlePhishingComplete} bestScore={phishingBest} />}
-          {tab === 'quiz' && <Quiz onComplete={handleQuizComplete} />}
+          {tab === 'quiz' && <Quiz onComplete={handleQuizComplete} username={currentUser?.username ?? 'Empleado'} />}
           {tab === 'bank' && <QuestionBank />}
           {tab === 'dashboard' && <UserDashboard />}
         </div>

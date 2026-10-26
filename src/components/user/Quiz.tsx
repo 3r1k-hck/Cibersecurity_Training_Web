@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Brain, CheckCircle2, XCircle, ArrowRight, RotateCcw, Trophy } from 'lucide-react';
 import { quizQuestions, type QuizQuestion } from '@/lib/data';
 import type { QuizAnswerRecord } from '@/types';
+import Certificate, { isPassing } from '@/components/user/Certificate';
 
 const MAX_QUESTIONS = 10;
 
@@ -12,9 +13,10 @@ function shuffleAndPick<T>(items: T[], count: number): T[] {
 
 interface Props {
   onComplete: (score: number, answers: QuizAnswerRecord[]) => void;
+  username: string;
 }
 
-export default function Quiz({ onComplete }: Props) {
+export default function Quiz({ onComplete, username }: Props) {
   const [questions, setQuestions] = useState<QuizQuestion[]>(() => shuffleAndPick(quizQuestions, MAX_QUESTIONS));
   const [idx, setIdx] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
@@ -59,6 +61,7 @@ export default function Quiz({ onComplete }: Props) {
 
   if (finished) {
     const score = answers.reduce((s, a) => (a.correct ? s + 1 : s), 0);
+    const passing = isPassing(score, questions.length);
     return (
       <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-8 text-center animate-fade-up">
         <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-cyan-500/15 mb-4">
@@ -66,7 +69,12 @@ export default function Quiz({ onComplete }: Props) {
         </div>
         <h3 className="text-xl font-bold text-white">Quiz completado</h3>
         <p className="text-slate-400 mt-2">Tu puntuacion: <span className="text-cyan-400 font-bold">{score}</span> / {questions.length}.</p>
-        <button onClick={restart} className="mt-6 inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-300 bg-slate-800 hover:bg-slate-700 rounded-lg transition-colors">
+        {passing ? (
+          <Certificate username={username} score={score} total={questions.length} date={Date.now()} />
+        ) : (
+          <p className="mt-4 text-xs text-slate-500">Necesitas al menos 70% para aprobar y descargar el certificado. Sigue practicando.</p>
+        )}
+        <button onClick={restart} className="mt-4 inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-300 bg-slate-800 hover:bg-slate-700 rounded-lg transition-colors">
           <RotateCcw className="w-4 h-4" /> Repetir Quiz
         </button>
       </div>

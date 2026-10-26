@@ -292,6 +292,306 @@ El equipo de LinkedIn`,
     isPhishing: false,
     indicators: [],
   },
+  {
+    id: 'pe-13',
+    from: 'no-reply@dropbox-share.cloud',
+    fromName: 'Dropbox',
+    subject: 'Carlos Hernandez ha compartido un documento contigo',
+    body: `Hola,
+
+Carlos Hernandez ha compartido un archivo contigo:
+"Confidencial-Planta-Nueva.pdf"
+
+Para ver el documento, haz clic aqui:
+https://dropbox-share.cloud/file?id=9921&auth=view
+
+Saludos,
+El equipo de Dropbox`,
+    date: '2024-03-20 15:22',
+    isPhishing: true,
+    indicators: [
+      'Dominio falso "dropbox-share.cloud" (no es el dominio oficial dropbox.com)',
+      'Asunto genera curiosidad: documento "Confidencial" para incitar a abrir',
+      'Enlace de descarga directa sin pasar por la autenticacion de Dropbox',
+      'Saludo generico sin el nombre real del destinatario',
+    ],
+  },
+  {
+    id: 'pe-14',
+    from: 'it-helpdesk@company.com',
+    fromName: 'Soporte IT Corporativo',
+    subject: 'Actualizacion de buzon requerida - Su cuenta sera suspendida',
+    body: `Estimado usuario,
+
+Nuestro sistema detecta que su buzon de correo ha excedido el limite de almacenamiento (9.8 GB de 10 GB).
+
+Para evitar la suspension de su cuenta, debe confirmar su direccion de correo y contrasena en el siguiente enlace:
+
+http://mail-verify.company-portal.net/update?acct=verify
+
+Tiene hasta las 23:59 de hoy para completar la verificacion.
+
+Soporte IT Corporativo`,
+    date: '2024-03-18 10:45',
+    isPhishing: true,
+    indicators: [
+      'Amenaza de suspension inmediata: "hasta las 23:59 de hoy"',
+      'Solicita confirmar contrasena por enlace (IT legitimo nunca pide contrasenas)',
+      'Dominio falso "company-portal.net" no coincide con el dominio corporativo real',
+      'Falsa urgencia tecnica: "buzon excedido" para provocar panico',
+    ],
+  },
+  {
+    id: 'pe-15',
+    from: 'noreply@stripe.com',
+    fromName: 'Stripe',
+    subject: 'Pago recibido - $1,299.00 USD de Acme Corp',
+    body: `Hola,
+
+Has recibido un pago de $1,299.00 USD de Acme Corp.
+
+ID de pago: pi_3O8xK2J9fLmN4qXy
+Fecha: 22 de marzo de 2024
+Estado: Completado
+
+Los fondos apareceran en tu cuenta bancaria en 2 dias habiles.
+
+Para ver los detalles completos, inicia sesion en tu panel:
+https://dashboard.stripe.com/payments/pi_3O8xK2J9fLmN4qXy
+
+Saludos,
+El equipo de Stripe`,
+    date: '2024-03-22 14:00',
+    isPhishing: false,
+    indicators: [],
+  },
+  {
+    id: 'pe-16',
+    from: 'ceo@company-urgent.com',
+    fromName: 'Ana Garcia - CEO',
+    subject: 'Re: Proyecto confidencial - Necesito tu ayuda ahora',
+    body: `Hola,
+
+Estoy en una reunion de junta urgente y necesito que compres 5 tarjetas de regalo de Amazon de $500 cada una para los premios del empleado del ano.
+
+Enviame los codigos de las tarjetas lo antes posible por correo. Es confidencial, no comentes esto con nadie.
+
+Gracias,
+Ana Garcia
+CEO`,
+    date: '2024-03-21 16:30',
+    isPhishing: true,
+    indicators: [
+      'Ataque de regalo de tarjetas (gift card scam): solicitud inusual de tarjetas de regalo',
+      'Dominio falso "company-urgent.com" (no es el dominio corporativo real)',
+      'Urgencia extrema: "necesito tu ayuda ahora"',
+      'Pide secreto: "no comentes esto con nadie" para evitar verificacion',
+    ],
+  },
+  {
+    id: 'pe-17',
+    from: 'security@mailgun-protect.net',
+    fromName: 'Equipo de Seguridad - Microsoft',
+    subject: 'Verificacion de cuenta de Microsoft 365 requerida',
+    body: `Estimado usuario,
+
+Detectamos un intento de acceso no autorizado a su cuenta de Microsoft 365 desde una ubicacion desconocida (Moscu, Rusia).
+
+Si NO fue usted, su cuenta podria estar comprometida. Para proteger su informacion, verifique su identidad ahora:
+
+https://ms365-protect.net/verify?user=security-check&token=abc123
+
+Si ignora este mensaje, su acceso a Office, Teams y Outlook sera bloqueado en 2 horas.
+
+Equipo de Seguridad Microsoft 365`,
+    date: '2024-03-19 08:15',
+    isPhishing: true,
+    indicators: [
+      'Dominio falso "mailgun-protect.net" no pertenece a Microsoft',
+      'Enlace de verificacion a dominio no oficial de Microsoft',
+      'Falsa alerta de intrusion para crear panico: acceso desde "Moscu, Rusia"',
+      'Amenaza de bloqueo en "2 horas" para forzar accion inmediata',
+    ],
+  },
+  {
+    id: 'pe-18',
+    from: 'noreply@zoom.us',
+    fromName: 'Zoom',
+    subject: 'Tu reunion grabada esta lista para ver',
+    body: `Hola,
+
+La grabacion de tu reunion "Reunion de equipo semanal" del 20 de marzo de 2024 ya esta disponible.
+
+Duracion: 45 minutos
+Tamano: 128 MB
+
+Para ver o descargar la grabacion, visita:
+https://zoom.us/rec/share/T0J9KQ0LMabc123def456
+
+Este enlace expirara en 30 dias.
+
+Equipo de Zoom`,
+    date: '2024-03-20 18:00',
+    isPhishing: false,
+    indicators: [],
+  },
+  {
+    id: 'pe-19',
+    from: 'recruiter@job-offer-top.com',
+    fromName: 'Recursos Humanos - TechCorp',
+    subject: 'Oferta de empleo: Desarrollador Senior - $120,000/anual',
+    body: `Estimado candidato,
+
+Tras revisar su perfil en LinkedIn, nos gustaria ofrecerle una posicion como Desarrollador Senior en TechCorp.
+
+Salario: $120,000 USD anuales
+Modalidad: Remoto
+Beneficios: Seguro medico, 30 dias de vacaciones
+
+Para aceptar la oferta, complete el formulario de registro con sus datos personales y bancarios:
+
+http://job-offer-top.com/accept-offer?ref=techcorp2024
+
+La oferta es valida por 48 horas.
+
+Departamento de RRHH - TechCorp`,
+    date: '2024-03-23 09:00',
+    isPhishing: true,
+    indicators: [
+      'Oferta de empleo no solicitada ("falsa oferta"): demasiado buena para ser cierta',
+      'Dominio falso "job-offer-top.com" no pertenece a TechCorp',
+      'Solicita datos personales y bancarios en un formulario externo',
+      'Urgencia artificial: "valida por 48 horas"',
+    ],
+  },
+  {
+    id: 'pe-20',
+    from: 'support@apple-id-locked.com',
+    fromName: 'Apple',
+    subject: 'Su Apple ID ha sido bloqueado por seguridad',
+    body: `Estimado cliente,
+
+Su Apple ID ha sido bloqueado por motivos de seguridad tras detectar multiples intentos de inicio de sesion fallidos.
+
+Para desbloquear su cuenta y restaurar el acceso a iCloud, App Store y todos los servicios de Apple, verifique su identidad en:
+
+https://apple-id-locked.com/verify?account=restore
+
+Si no verifica su cuenta en 24 horas, sera eliminada permanentemente junto con todos sus datos de iCloud.
+
+Soporte Apple`,
+    date: '2024-03-24 12:30',
+    isPhishing: true,
+    indicators: [
+      'Dominio falso "apple-id-locked.com" (Apple usa apple.com)',
+      'Amenaza de eliminacion de datos: "junto con todos sus datos de iCloud"',
+      'Urgencia extrema: "24 horas" para actuar',
+      'Saludo generico "Estimado cliente" sin nombre real',
+    ],
+  },
+  {
+    id: 'pe-21',
+    from: 'noreply@spain-treasury.gov.es',
+    fromName: 'Agencia Tributaria',
+    subject: 'Devolucion de impuestos disponible - 480 EUR',
+    body: `Estimado contribuyente,
+
+Tras la revision de su declaracion de la renta 2023, se ha determinado que tiene derecho a una devolucion de 480 EUR.
+
+Para recibir la devolucion, debe confirmar sus datos bancarios en el siguiente formulario oficial:
+
+https://spain-treasury.gov.es/devolucion?ref=irpf2023&id=7721
+
+Tiene 5 dias habiles para reclamar su devolucion antes de que expire.
+
+Agencia Tributaria Espanola`,
+    date: '2024-03-25 08:00',
+    isPhishing: true,
+    indicators: [
+      'Suplantacion de la Agencia Tributaria (phishing fiscal)',
+      'Dominio falso "spain-treasury.gov.es" (el oficial es agenciatributaria.gob.es)',
+      'Solicita datos bancarios para procesar una "devolucion" inexistente',
+      'Cebo economico: "480 EUR de devolucion" para incitar a actuar',
+    ],
+  },
+  {
+    id: 'pe-22',
+    from: 'alerts@chase-bank-secure.net',
+    fromName: 'Chase Bank',
+    subject: 'Alerta de fraude: Transaccion sospechosa de $3,400.00',
+    body: `Estimado cliente,
+
+Hemos detectado una transaccion sospechosa en su tarjeta de debito:
+
+Monto: $3,400.00
+Comercio: ELECTRONICS ONLINE STORE
+Fecha: 24/03/2024 03:42 AM
+
+Si NO reconoce esta transaccion, debe confirmar o cancelar inmediatamente:
+
+https://chase-bank-secure.net/fraud-alert?action=cancel&card=8821
+
+Si no responde en 1 hora, la transaccion sera aprobada.
+
+Departamento de Fraude - Chase Bank`,
+    date: '2024-03-24 04:15',
+    isPhishing: true,
+    indicators: [
+      'Dominio falso "chase-bank-secure.net" (Chase usa chase.com)',
+      'Falsa alerta de fraude nocturna para crear panico inmediato',
+      'Enlace de "cancelacion" que captura credenciales bancarias',
+      'Amenaza de aprobacion automatica: "en 1 hora" si no actua',
+    ],
+  },
+  {
+    id: 'pe-23',
+    from: 'feedback@google-forms-secure.io',
+    fromName: 'RRHH - Encuesta Interna',
+    subject: 'Encuesta de satisfaccion laboral obligatoria',
+    body: `Hola,
+
+El departamento de Recursos Humanos ha creado una encuesta de satisfaccion laboral obligatoria para todos los empleados.
+
+La encuesta toma menos de 5 minutos y debe completarse antes del viernes.
+
+Acceda a la encuesta con sus credenciales corporativas:
+https://google-forms-secure.io/survey?company=internal&dept=hr
+
+Gracias por su participacion.
+
+RRHH`,
+    date: '2024-03-26 09:30',
+    isPhishing: true,
+    indicators: [
+      'Dominio falso "google-forms-secure.io" suplantando Google Forms',
+      'Solicita credenciales corporativas para una "encuesta" (robo de credenciales)',
+      'Falsa urgencia: "obligatoria" y "antes del viernes"',
+      'Parece un correo interno legitimo pero usa un dominio externo sospechoso',
+    ],
+  },
+  {
+    id: 'pe-24',
+    from: 'shipping@fedex.com',
+    fromName: 'FedEx',
+    subject: 'Tu envio #7741290653 esta en transito',
+    body: `Hola,
+
+Tu envio #7741290653 esta actualmente en transito.
+
+Estado: En centro de distribucion
+Ubicacion: Madrid, Espana
+Fecha estimada de entrega: 27 de marzo de 2024
+
+Para rastrear tu paquete en tiempo real:
+https://www.fedex.com/fedextrack/?trknbr=7741290653
+
+Si tienes preguntas sobre tu envio, no respondas a este correo. Contacta con el remitente.
+
+Gracias por elegir FedEx.`,
+    date: '2024-03-25 14:20',
+    isPhishing: false,
+    indicators: [],
+  },
 ];
 
 export interface QuizQuestion {
