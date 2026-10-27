@@ -1,22 +1,107 @@
 import { useState, useMemo } from 'react';
-import { BookOpen, CheckCircle2, XCircle, ArrowRight, RotateCcw, Trophy, Filter, Layers } from 'lucide-react';
+import { BookOpen, CheckCircle2, XCircle, ArrowRight, RotateCcw, Trophy, Filter, Layers, ChevronRight, Shield, Swords, Lock, Globe, Bug, Mail, Eye, ChevronDown } from 'lucide-react';
 import { practiceQuestions } from '@/lib/data';
 import type { QuizQuestion } from '@/lib/data';
 
 type Mode = 'menu' | 'quiz' | 'results';
 
+interface CategoryGroup {
+  id: string;
+  label: string;
+  icon: React.ReactNode;
+  color: string;
+  categories: string[];
+}
+
+const CATEGORY_GROUPS: CategoryGroup[] = [
+  {
+    id: 'blue-team',
+    label: 'Blue Team',
+    icon: <Shield className="w-5 h-5" />,
+    color: 'cyan',
+    categories: ['Blue Team', 'Blue Team - Forense', 'Blue Team - Hardening', 'Blue Team - Respuesta a Incidentes', 'Blue Team - SIEM', 'Blue Team - Threat Hunting'],
+  },
+  {
+    id: 'red-team',
+    label: 'Red Team',
+    icon: <Swords className="w-5 h-5" />,
+    color: 'rose',
+    categories: ['Red Team', 'Red Team - Explotación', 'Red Team - Pentesting', 'Red Team - Post-Explotación', 'Red Team - Reconocimiento'],
+  },
+  {
+    id: 'fundamentos',
+    label: 'Fundamentos de Seguridad',
+    icon: <Lock className="w-5 h-5" />,
+    color: 'emerald',
+    categories: ['Contraseñas', 'Autenticación', 'Criptografía', 'Control de Acceso'],
+  },
+  {
+    id: 'amenazas',
+    label: 'Amenazas y Ataques',
+    icon: <Bug className="w-5 h-5" />,
+    color: 'amber',
+    categories: ['Phishing', 'Ingeniería Social', 'Malware', 'Ataques', 'Vulnerabilidades'],
+  },
+  {
+    id: 'infraestructura',
+    label: 'Infraestructura y Web',
+    icon: <Globe className="w-5 h-5" />,
+    color: 'blue',
+    categories: ['Seguridad Web', 'Seguridad de Red', 'Seguridad Física'],
+  },
+];
+
+const UNCATEGORIZED_GROUP: CategoryGroup = {
+  id: 'otros',
+  label: 'Otros',
+  icon: <Eye className="w-5 h-5" />,
+  color: 'slate',
+  categories: ['Defensa'],
+};
+
+const ALL_GROUPS = [...CATEGORY_GROUPS, UNCATEGORIZED_GROUP];
+
+const colorClasses: Record<string, { text: string; bg: string; border: string; gradient: string }> = {
+  cyan: { text: 'text-cyan-400', bg: 'bg-cyan-500/10', border: 'border-cyan-500/30', gradient: 'from-cyan-500 to-blue-600' },
+  rose: { text: 'text-rose-400', bg: 'bg-rose-500/10', border: 'border-rose-500/30', gradient: 'from-rose-500 to-red-600' },
+  emerald: { text: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/30', gradient: 'from-emerald-500 to-teal-600' },
+  amber: { text: 'text-amber-400', bg: 'bg-amber-500/10', border: 'border-amber-500/30', gradient: 'from-amber-500 to-orange-600' },
+  blue: { text: 'text-blue-400', bg: 'bg-blue-500/10', border: 'border-blue-500/30', gradient: 'from-blue-500 to-indigo-600' },
+  slate: { text: 'text-slate-400', bg: 'bg-slate-500/10', border: 'border-slate-500/30', gradient: 'from-slate-500 to-slate-600' },
+};
+
 export default function QuestionBank() {
   const [mode, setMode] = useState<Mode>('menu');
   const [selectedCategory, setSelectedCategory] = useState<string>('Todas');
+  const [expandedGroup, setExpandedGroup] = useState<string | null>(null);
   const [idx, setIdx] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
   const [revealed, setRevealed] = useState(false);
   const [answers, setAnswers] = useState<{ question: QuizQuestion; selected: number; correct: boolean }[]>([]);
 
-  const categories = useMemo(() => {
+  const existingCategories = useMemo(() => {
     const set = new Set(practiceQuestions.map((q) => q.category));
-    return ['Todas', ...Array.from(set).sort()];
+    return set;
   }, []);
+
+  const activeGroups = useMemo(() => {
+    return ALL_GROUPS
+      .map((g) => ({
+        ...g,
+        categories: g.categories.filter((c) => existingCategories.has(c)),
+      }))
+      .filter((g) => g.categories.length > 0);
+  }, [existingCategories]);
+
+  const groupQuestionCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const g of activeGroups) {
+      counts[g.id] = g.categories.reduce((sum, cat) => {
+        return sum + practiceQuestions.filter((q) => q.category === cat).length;
+      }, 0);
+    }
+    return counts;
+  }, [activeGroups]);
 
   const questions = useMemo(() => {
     if (selectedCategory === 'Todas') return practiceQuestions;
@@ -57,6 +142,39 @@ export default function QuestionBank() {
     setAnswers([]);
   }
 
+  function selectCategory(cat: string) {
+    setSelectedCategory(cat);
+    setExpandedGroup(null);
+  }
+
+  function selectGroup(g: CategoryGroup) {
+    setSelectedCategory('Todas');
+    setExpandedGroup(expandedGroup === g.id ? null : g.id);
+  }
+
+  function selectAllInGroup(g: CategoryGroup) {
+    const groupQuestions = g.categories.flatMap((cat) =>
+      practiceQuestions.filter((q) => q.category === cat),
+    );
+    if (groupQuestions.length > 0) {
+      setSelectedCategory(`__group__${g.id}`);
+      setExpandedGroup(null);
+    }
+  }
+
+  const filteredQuestions = useMemo(() => {
+    if (selectedCategory.startsWith('__group__')) {
+      const groupId = selectedCategory.slice('__group__'.length);
+      const group = activeGroups.find((g) => g.id === groupId);
+      if (!group) return [];
+      return practiceQuestions.filter((q) => group.categories.includes(q.category));
+    }
+    if (selectedCategory === 'Todas') return practiceQuestions;
+    return practiceQuestions.filter((q) => q.category === selectedCategory);
+  }, [selectedCategory, activeGroups]);
+
+  const activeQuestions = filteredQuestions;
+
   if (mode === 'menu') {
     return (
       <div className="space-y-4 animate-fade-up">
@@ -67,35 +185,96 @@ export default function QuestionBank() {
           <h3 className="text-lg font-bold text-white">Banco de Preguntas</h3>
           <p className="text-sm text-slate-400 mt-1.5 max-w-md mx-auto">
             Pon a prueba tu conocimiento en ciberseguridad con {practiceQuestions.length} preguntas
-            distribuidas en {categories.length - 1} categorías.
+            distribuidas en {activeGroups.length} areas principales.
           </p>
         </div>
 
-        <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-5">
-          <div className="flex items-center gap-2 mb-3">
-            <Filter className="w-4 h-4 text-cyan-400" />
-            <p className="text-sm font-semibold text-white">Elige una categoría</p>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {categories.map((cat) => {
-              const count = cat === 'Todas'
-                ? practiceQuestions.length
-                : practiceQuestions.filter((q) => q.category === cat).length;
+        <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-3 sm:p-5">
+          <button
+            onClick={() => { selectCategory('Todas'); setExpandedGroup(null); }}
+            className={`w-full flex items-center justify-between px-4 py-3 rounded-xl border transition-all mb-3 ${
+              selectedCategory === 'Todas'
+                ? 'bg-emerald-500/15 border-emerald-500/50 text-emerald-300'
+                : 'bg-slate-950/40 border-slate-700 text-slate-300 hover:border-slate-600'
+            }`}
+          >
+            <div className="flex items-center gap-2">
+              <Layers className="w-4 h-4" />
+              <span className="text-sm font-semibold">Todas las preguntas</span>
+            </div>
+            <span className="text-xs font-mono px-2 py-0.5 rounded-full bg-slate-800 text-slate-400">{practiceQuestions.length}</span>
+          </button>
+
+          <div className="space-y-2">
+            {activeGroups.map((g) => {
+              const colors = colorClasses[g.color];
+              const isExpanded = expandedGroup === g.id;
+              const count = groupQuestionCounts[g.id] || 0;
+              const isGroupSelected = selectedCategory === `__group__${g.id}`;
+
               return (
-                <button
-                  key={cat}
-                  onClick={() => setSelectedCategory(cat)}
-                  className={`inline-flex items-center gap-2 px-3 py-2 text-sm rounded-lg border transition-all ${
-                    selectedCategory === cat
-                      ? 'bg-emerald-500/15 border-emerald-500/50 text-emerald-300'
-                      : 'bg-slate-950/40 border-slate-700 text-slate-400 hover:border-slate-600 hover:text-slate-200'
-                  }`}
-                >
-                  {cat}
-                  <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-full bg-slate-800 text-slate-400">
-                    {count}
-                  </span>
-                </button>
+                <div key={g.id} className={`rounded-xl border transition-all ${isExpanded ? `${colors.border} bg-slate-950/30` : 'border-slate-800 bg-slate-950/20'}`}>
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => selectGroup(g)}
+                      className={`flex-1 flex items-center justify-between px-4 py-3 rounded-xl transition-all ${isGroupSelected ? colors.bg : 'hover:bg-slate-800/30'}`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className={`inline-flex items-center justify-center w-9 h-9 rounded-lg ${colors.bg} ${colors.text}`}>
+                          {g.icon}
+                        </span>
+                        <div className="text-left">
+                          <p className={`text-sm font-semibold ${isGroupSelected ? colors.text : 'text-white'}`}>{g.label}</p>
+                          <p className="text-[10px] text-slate-500">{g.categories.length} categorias</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-mono px-2 py-0.5 rounded-full bg-slate-800 text-slate-400">{count}</span>
+                        <ChevronRight className={`w-4 h-4 text-slate-500 transition-transform duration-300 ${isExpanded ? 'rotate-90' : ''}`} />
+                      </div>
+                    </button>
+                  </div>
+
+                  {isExpanded && (
+                    <div className="px-3 pb-3 pt-1 space-y-1 animate-fade-up">
+                      <button
+                        onClick={() => selectAllInGroup(g)}
+                        className={`w-full flex items-center justify-between px-3 py-2 text-xs rounded-lg border transition-all ${
+                          isGroupSelected
+                            ? `${colors.bg} ${colors.border} ${colors.text} font-semibold`
+                            : 'bg-slate-900/40 border-slate-700/50 text-slate-400 hover:text-slate-200 hover:border-slate-600'
+                        }`}
+                      >
+                        <span className="flex items-center gap-2">
+                          <Layers className="w-3.5 h-3.5" />
+                          Todas las de {g.label}
+                        </span>
+                        <span className="font-mono">{count}</span>
+                      </button>
+                      {g.categories.map((cat) => {
+                        const catCount = practiceQuestions.filter((q) => q.category === cat).length;
+                        const isCatSelected = selectedCategory === cat;
+                        return (
+                          <button
+                            key={cat}
+                            onClick={() => selectCategory(cat)}
+                            className={`w-full flex items-center justify-between px-3 py-2 text-xs rounded-lg border transition-all ${
+                              isCatSelected
+                                ? `${colors.bg} ${colors.border} ${colors.text} font-semibold`
+                                : 'bg-slate-900/40 border-slate-700/50 text-slate-400 hover:text-slate-200 hover:border-slate-600'
+                            }`}
+                          >
+                            <span className="flex items-center gap-2">
+                              <ChevronRight className="w-3 h-3 opacity-40" />
+                              {cat}
+                            </span>
+                            <span className="font-mono">{catCount}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
               );
             })}
           </div>
@@ -104,29 +283,23 @@ export default function QuestionBank() {
         <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-5">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <Layers className="w-4 h-4 text-cyan-400" />
+              <Filter className="w-4 h-4 text-cyan-400" />
               <p className="text-sm font-semibold text-white">
-                {selectedCategory === 'Todas' ? 'Todas las preguntas' : selectedCategory}
+                {selectedCategory === 'Todas'
+                  ? 'Todas las preguntas'
+                  : selectedCategory.startsWith('__group__')
+                    ? activeGroups.find((g) => g.id === selectedCategory.slice('__group__'.length))?.label ?? 'Grupo'
+                    : selectedCategory}
               </p>
             </div>
-            <span className="text-xs font-mono text-slate-500">{questions.length} preguntas</span>
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4">
-            {categories.slice(1).map((cat) => {
-              const count = practiceQuestions.filter((q) => q.category === cat).length;
-              return (
-                <div key={cat} className="bg-slate-950/40 border border-slate-800 rounded-lg p-2.5 text-center">
-                  <p className="text-lg font-bold text-emerald-400">{count}</p>
-                  <p className="text-[10px] text-slate-500 truncate">{cat}</p>
-                </div>
-              );
-            })}
+            <span className="text-xs font-mono text-slate-500">{activeQuestions.length} preguntas</span>
           </div>
           <button
             onClick={startQuiz}
-            className="w-full py-2.5 bg-gradient-to-r from-emerald-500 to-cyan-600 text-white text-sm font-semibold rounded-lg hover:from-emerald-400 hover:to-cyan-500 transition-all"
+            disabled={activeQuestions.length === 0}
+            className="w-full py-2.5 bg-gradient-to-r from-emerald-500 to-cyan-600 text-white text-sm font-semibold rounded-lg hover:from-emerald-400 hover:to-cyan-500 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            Comenzar prueba
+            Comenzar prueba ({activeQuestions.length} preguntas)
           </button>
         </div>
       </div>
@@ -200,7 +373,18 @@ export default function QuestionBank() {
     );
   }
 
-  const q = questions[idx];
+  const q = activeQuestions[idx];
+
+  if (!q) {
+    return (
+      <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-8 text-center animate-fade-up">
+        <p className="text-sm text-slate-400">No hay preguntas disponibles para esta seleccion.</p>
+        <button onClick={restart} className="mt-4 inline-flex items-center gap-2 px-4 py-2 text-sm text-slate-300 bg-slate-800 hover:bg-slate-700 rounded-lg transition-colors">
+          <RotateCcw className="w-4 h-4" /> Volver
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-slate-900/60 border border-slate-800 rounded-2xl overflow-hidden animate-fade-up">
@@ -210,7 +394,7 @@ export default function QuestionBank() {
           <span>Banco de Preguntas</span>
         </div>
         <span className="text-xs font-mono text-slate-500">
-          {idx + 1} / {questions.length}
+          {idx + 1} / {activeQuestions.length}
         </span>
       </div>
 
@@ -218,7 +402,7 @@ export default function QuestionBank() {
         <div className="h-1.5 bg-slate-800 rounded-full overflow-hidden">
           <div
             className="h-full bg-gradient-to-r from-emerald-500 to-cyan-500 transition-all duration-500"
-            style={{ width: `${(idx / questions.length) * 100}%` }}
+            style={{ width: `${(idx / activeQuestions.length) * 100}%` }}
           />
         </div>
       </div>
@@ -295,7 +479,7 @@ export default function QuestionBank() {
             onClick={next}
             className="w-full inline-flex items-center justify-center gap-2 py-2.5 bg-gradient-to-r from-emerald-500 to-cyan-600 text-white text-sm font-semibold rounded-lg hover:from-emerald-400 hover:to-cyan-500 transition-all"
           >
-            {idx + 1 >= questions.length ? 'Finalizar prueba' : 'Siguiente pregunta'}{' '}
+            {idx + 1 >= activeQuestions.length ? 'Finalizar prueba' : 'Siguiente pregunta'}{' '}
             <ArrowRight className="w-4 h-4" />
           </button>
         )}
