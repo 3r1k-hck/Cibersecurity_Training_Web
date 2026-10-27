@@ -23,31 +23,33 @@ export default function UserPanel() {
   const [toast, setToast] = useState('');
 
   function handlePhishingComplete(r: { phishingScore: number; phishingAnswers: PhishingAnswerRecord[] }) {
+    const result: SessionResult = {
+      phishingScore: r.phishingScore,
+      quizScore: 0,
+      totalScore: r.phishingScore,
+      phishingAnswers: r.phishingAnswers,
+      quizAnswers: [],
+      completedAt: Date.now(),
+    };
+    saveSessionResult(result);
     setPhishingResult({ score: r.phishingScore, answers: r.phishingAnswers });
-    setToast('Modulo de phishing guardado. Continua al quiz para registrar tu sesion completa.');
+    setToast('Modulo de phishing guardado en tu progreso.');
     setTimeout(() => setToast(''), 4000);
   }
 
   function handleQuizComplete(score: number, answers: QuizAnswerRecord[]) {
+    const result: SessionResult = {
+      phishingScore: phishingResult?.score ?? 0,
+      quizScore: score,
+      totalScore: (phishingResult?.score ?? 0) + score,
+      phishingAnswers: phishingResult?.answers ?? [],
+      quizAnswers: answers,
+      completedAt: Date.now(),
+    };
+    saveSessionResult(result);
     setQuizResult({ score, answers });
-    if (phishingResult) {
-      const result: SessionResult = {
-        phishingScore: phishingResult.score,
-        quizScore: score,
-        totalScore: phishingResult.score + score,
-        phishingAnswers: phishingResult.answers,
-        quizAnswers: answers,
-        completedAt: Date.now(),
-      };
-      saveSessionResult(result);
-      setToast('Sesion registrada. Revisa tu panel de progreso para ver tu puntuacion actualizada.');
-      setTimeout(() => setToast(''), 5000);
-      setTab('dashboard');
-    } else {
-      setToast('Completa primero el modulo de phishing para registrar una sesion completa.');
-      setTimeout(() => setToast(''), 4000);
-      setTab('phishing');
-    }
+    setToast('Quiz guardado en tu progreso.');
+    setTimeout(() => setToast(''), 5000);
   }
 
   const tabs: { id: Tab; label: string; icon: React.ReactNode }[] = [
