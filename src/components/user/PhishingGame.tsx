@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Shield, Mail, CheckCircle2, XCircle, ArrowRight, Eye, Lightbulb, RotateCcw, Trophy } from 'lucide-react';
-import { phishingEmails, type PhishingEmail } from '@/lib/data';
+import { Shield, Mail, MessageSquare, Phone, QrCode, Bell, CheckCircle2, XCircle, ArrowRight, Eye, Lightbulb, RotateCcw, Trophy } from 'lucide-react';
+import { phishingEmails, type PhishingEmail, type PhishingChannel } from '@/lib/data';
 import type { PhishingAnswerRecord } from '@/types';
 import type { SessionResult } from '@/types';
 
@@ -16,6 +16,18 @@ interface Props {
   bestScore: number;
 }
 
+const channelMeta: Record<PhishingChannel, { icon: React.ReactNode; label: string; hint: string }> = {
+  email: { icon: <Mail className="w-4 h-4" />, label: 'Correo electronico', hint: 'Simulador de Bandeja de Entrada' },
+  sms: { icon: <MessageSquare className="w-4 h-4" />, label: 'Mensaje SMS', hint: 'Simulador de Mensajes Moviles' },
+  call: { icon: <Phone className="w-4 h-4" />, label: 'Llamada telefonica', hint: 'Simulador de Llamadas (Vishing)' },
+  qr: { icon: <QrCode className="w-4 h-4" />, label: 'Codigo QR', hint: 'Simulador de Codigo QR (Quishing)' },
+  push: { icon: <Bell className="w-4 h-4" />, label: 'Notificacion push', hint: 'Simulador de Notificaciones Push' },
+};
+
+function channelOf(e: PhishingEmail): PhishingChannel {
+  return e.channel ?? 'email';
+}
+
 export default function PhishingGame({ onComplete, bestScore }: Props) {
   const [emails, setEmails] = useState<PhishingEmail[]>(() => shuffleAndPick(phishingEmails, MAX_QUESTIONS));
   const [idx, setIdx] = useState(0);
@@ -25,6 +37,8 @@ export default function PhishingGame({ onComplete, bestScore }: Props) {
   const [finished, setFinished] = useState(false);
 
   const email = emails[idx];
+  const ch = channelOf(email);
+  const meta = channelMeta[ch];
 
   function choose(choice: 'phishing' | 'real') {
     if (revealed) return;
@@ -69,7 +83,7 @@ export default function PhishingGame({ onComplete, bestScore }: Props) {
           <Trophy className="w-8 h-8 text-emerald-400" />
         </div>
         <h3 className="text-xl font-bold text-white">Modulo de Phishing Completado</h3>
-        <p className="text-slate-400 mt-2">Identificaste correctamente <span className="text-emerald-400 font-bold">{score}</span> de {emails.length} correos.</p>
+        <p className="text-slate-400 mt-2">Identificaste correctamente <span className="text-emerald-400 font-bold">{score}</span> de {emails.length} mensajes.</p>
         <div className="flex items-center justify-center gap-3 mt-6">
           <button onClick={restart} className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-300 bg-slate-800 hover:bg-slate-700 rounded-lg transition-colors">
             <RotateCcw className="w-4 h-4" /> Reintentar modulo
@@ -84,8 +98,8 @@ export default function PhishingGame({ onComplete, bestScore }: Props) {
     <div className="bg-slate-900/60 border border-slate-800 rounded-2xl overflow-hidden">
       <div className="flex items-center justify-between px-5 py-3 border-b border-slate-800 bg-slate-950/40">
         <div className="flex items-center gap-2 text-sm text-slate-400">
-          <Mail className="w-4 h-4 text-emerald-400" />
-          <span>Simulador de Bandeja de Entrada</span>
+          <span className="text-emerald-400">{meta.icon}</span>
+          <span>{meta.hint}</span>
         </div>
         <span className="text-xs font-mono text-slate-500">{idx + 1} / {emails.length}</span>
       </div>
@@ -97,20 +111,14 @@ export default function PhishingGame({ onComplete, bestScore }: Props) {
       </div>
 
       <div className="p-5">
-        <div className="bg-slate-950/50 border border-slate-800 rounded-xl p-4 mb-4">
-          <div className="flex items-start justify-between gap-3 mb-3 pb-3 border-b border-slate-800">
-            <div className="min-w-0">
-              <p className="text-xs text-slate-500 mb-0.5">De</p>
-              <p className="text-sm text-slate-200 font-medium truncate">{email.fromName} <span className="text-slate-500 font-mono">&lt;{email.from}&gt;</span></p>
-            </div>
-            <span className="text-xs text-slate-500 font-mono shrink-0">{email.date}</span>
-          </div>
-          <p className="text-sm font-semibold text-white mb-3">{email.subject}</p>
-          <pre className="text-xs text-slate-400 font-mono whitespace-pre-wrap leading-relaxed font-mono">{email.body}</pre>
-        </div>
+        {ch === 'email' && <EmailCard email={email} />}
+        {ch === 'sms' && <SmsCard email={email} />}
+        {ch === 'call' && <CallCard email={email} />}
+        {ch === 'qr' && <QrCard email={email} />}
+        {ch === 'push' && <PushCard email={email} />}
 
         {!revealed ? (
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-3 mt-4">
             <button
               onClick={() => choose('real')}
               className="flex flex-col items-center gap-2 py-4 border border-slate-700 hover:border-emerald-500/60 hover:bg-emerald-500/5 rounded-xl transition-all group"
@@ -127,7 +135,7 @@ export default function PhishingGame({ onComplete, bestScore }: Props) {
             </button>
           </div>
         ) : (
-          <div className="animate-fade-up">
+          <div className="animate-fade-up mt-4">
             <div className={`flex items-start gap-3 p-4 rounded-xl border mb-4 ${email.isPhishing ? 'bg-rose-500/10 border-rose-500/30' : 'bg-emerald-500/10 border-emerald-500/30'}`}>
               {lastChoice === (email.isPhishing ? 'phishing' : 'real') ? (
                 <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
@@ -139,7 +147,7 @@ export default function PhishingGame({ onComplete, bestScore }: Props) {
                   {lastChoice === (email.isPhishing ? 'phishing' : 'real') ? 'Correcto!' : 'Incorrecto.'}
                 </p>
                 <p className="text-slate-400 mt-0.5">
-                  Este correo es <span className={email.isPhishing ? 'text-rose-400' : 'text-emerald-400'}>{email.isPhishing ? 'un intento de PHISHING' : 'LEGITIMO'}</span>.
+                  Este {ch === 'email' ? 'correo' : ch === 'sms' ? 'SMS' : ch === 'call' ? 'mensaje de llamada' : ch === 'qr' ? 'codigo QR' : 'mensaje push'} es <span className={email.isPhishing ? 'text-rose-400' : 'text-emerald-400'}>{email.isPhishing ? 'un intento de PHISHING' : 'LEGITIMO'}</span>.
                 </p>
               </div>
             </div>
@@ -165,11 +173,120 @@ export default function PhishingGame({ onComplete, bestScore }: Props) {
               onClick={next}
               className="w-full inline-flex items-center justify-center gap-2 py-2.5 bg-gradient-to-r from-emerald-500 to-cyan-600 text-white text-sm font-semibold rounded-lg hover:from-emerald-400 hover:to-cyan-500 transition-all"
             >
-              {idx + 1 >= emails.length ? 'Finalizar modulo' : 'Siguiente correo'} <ArrowRight className="w-4 h-4" />
+              {idx + 1 >= emails.length ? 'Finalizar modulo' : 'Siguiente mensaje'} <ArrowRight className="w-4 h-4" />
             </button>
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+function EmailCard({ email }: { email: PhishingEmail }) {
+  return (
+    <div className="bg-slate-950/50 border border-slate-800 rounded-xl p-4">
+      <div className="flex items-start justify-between gap-3 mb-3 pb-3 border-b border-slate-800">
+        <div className="min-w-0">
+          <p className="text-xs text-slate-500 mb-0.5">De</p>
+          <p className="text-sm text-slate-200 font-medium truncate">{email.fromName} <span className="text-slate-500 font-mono">&lt;{email.from}&gt;</span></p>
+        </div>
+        <span className="text-xs text-slate-500 font-mono shrink-0">{email.date}</span>
+      </div>
+      <p className="text-sm font-semibold text-white mb-3">{email.subject}</p>
+      <pre className="text-xs text-slate-400 font-mono whitespace-pre-wrap leading-relaxed">{email.body}</pre>
+    </div>
+  );
+}
+
+function SmsCard({ email }: { email: PhishingEmail }) {
+  return (
+    <div className="bg-slate-950/50 border border-slate-800 rounded-xl p-4">
+      <div className="flex items-center gap-2 mb-3 pb-3 border-b border-slate-800">
+        <div className="w-9 h-9 rounded-full bg-emerald-500/15 flex items-center justify-center shrink-0">
+          <MessageSquare className="w-4 h-4 text-emerald-400" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="text-sm text-slate-200 font-medium truncate">{email.fromName}</p>
+          <p className="text-xs text-slate-500 font-mono truncate">{email.from}</p>
+        </div>
+        <span className="text-xs text-slate-500 font-mono shrink-0">{email.date}</span>
+      </div>
+      <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl rounded-tl-sm px-4 py-3 max-w-[90%]">
+        <p className="text-sm text-slate-200 whitespace-pre-wrap leading-relaxed">{email.body}</p>
+      </div>
+      <p className="text-xs text-slate-600 mt-2 text-right">SMS</p>
+    </div>
+  );
+}
+
+function CallCard({ email }: { email: PhishingEmail }) {
+  return (
+    <div className="bg-slate-950/50 border border-slate-800 rounded-xl p-4">
+      <div className="flex items-center gap-3 mb-3 pb-3 border-b border-slate-800">
+        <div className="w-9 h-9 rounded-full bg-cyan-500/15 flex items-center justify-center shrink-0">
+          <Phone className="w-4 h-4 text-cyan-400" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="text-sm text-slate-200 font-medium truncate">{email.fromName}</p>
+          <p className="text-xs text-slate-500 font-mono truncate">{email.subject}</p>
+        </div>
+        <span className="text-xs text-slate-500 font-mono shrink-0">{email.date}</span>
+      </div>
+      <div className="flex items-center gap-2 mb-2">
+        <span className="inline-flex items-center gap-1 text-[10px] font-mono text-cyan-400 bg-cyan-500/10 border border-cyan-500/20 rounded-full px-2 py-0.5">
+          <Phone className="w-3 h-3" /> TRANSCRIPCION DE LLAMADA
+        </span>
+      </div>
+      <div className="bg-slate-900/60 border border-slate-700/50 rounded-xl px-4 py-3">
+        <p className="text-sm text-slate-300 whitespace-pre-wrap leading-relaxed italic">{email.body}</p>
+      </div>
+    </div>
+  );
+}
+
+function QrCard({ email }: { email: PhishingEmail }) {
+  return (
+    <div className="bg-slate-950/50 border border-slate-800 rounded-xl p-4">
+      <div className="flex items-center gap-3 mb-3 pb-3 border-b border-slate-800">
+        <div className="w-9 h-9 rounded-full bg-amber-500/15 flex items-center justify-center shrink-0">
+          <QrCode className="w-4 h-4 text-amber-400" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="text-sm text-slate-200 font-medium truncate">{email.fromName}</p>
+          <p className="text-xs text-slate-500 truncate">{email.subject}</p>
+        </div>
+        <span className="text-xs text-slate-500 font-mono shrink-0">{email.date}</span>
+      </div>
+      <div className="flex items-start gap-4">
+        <div className="shrink-0 w-24 h-24 bg-white rounded-xl flex items-center justify-center border border-slate-700">
+          <QrCode className="w-16 h-16 text-slate-900" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="text-[10px] font-mono text-amber-400 bg-amber-500/10 border border-amber-500/20 rounded-full px-2 py-0.5 inline-block mb-2">CODIGO QR ESCANEADO</p>
+          <p className="text-xs text-slate-400 whitespace-pre-wrap leading-relaxed">{email.body}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PushCard({ email }: { email: PhishingEmail }) {
+  return (
+    <div className="bg-slate-950/50 border border-slate-800 rounded-xl p-4">
+      <div className="flex items-center gap-3 mb-3 pb-3 border-b border-slate-800">
+        <div className="w-9 h-9 rounded-full bg-violet-500/15 flex items-center justify-center shrink-0">
+          <Bell className="w-4 h-4 text-violet-400" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="text-sm text-slate-200 font-medium truncate">{email.fromName}</p>
+          <p className="text-xs text-slate-500 truncate">{email.subject}</p>
+        </div>
+        <span className="text-xs text-slate-500 font-mono shrink-0">{email.date}</span>
+      </div>
+      <div className="bg-slate-900/60 border border-slate-700/50 rounded-xl px-4 py-3">
+        <p className="text-sm text-slate-300 whitespace-pre-wrap leading-relaxed">{email.body}</p>
+      </div>
+      <p className="text-xs text-slate-600 mt-2 text-right">Notificacion push</p>
     </div>
   );
 }

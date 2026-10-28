@@ -1,3 +1,5 @@
+export type PhishingChannel = 'email' | 'sms' | 'call' | 'qr' | 'push';
+
 export interface PhishingEmail {
   id: string;
   from: string;
@@ -7,6 +9,7 @@ export interface PhishingEmail {
   date: string;
   isPhishing: boolean;
   indicators: string[];
+  channel?: PhishingChannel;
 }
 
 export const phishingEmails: PhishingEmail[] = [
@@ -591,6 +594,450 @@ Gracias por elegir FedEx.`,
     date: '2024-03-25 14:20',
     isPhishing: false,
     indicators: [],
+  },
+  // ====== SMS PHISHING (SMISHING) ======
+  {
+    id: 'pe-s1',
+    from: '+34 600 12 34 56',
+    fromName: 'Correos',
+    subject: 'SMS - Paquete en espera',
+    body: `CORREOS: Su paquete #A8821X esta retenido por falta de pago de 1,99 EUR (tasa aduanera). Pague ahora para evitar devolucion:
+
+http://correos-es.link/pago?id=A8821X`,
+    date: '2024-10-15 11:32',
+    isPhishing: true,
+    channel: 'sms',
+    indicators: [
+      'URL acortada con dominio "correos-es.link" (no es el oficial correos.com)',
+      'Solicitud de pago por SMS por una "tasa aduanera" de 1,99 EUR (tctica clasica de smishing)',
+      'Numero de telefono del remitente no oficial de Correos',
+      'Urgencia: "evitar devolucion" para forzar el pago inmediato',
+    ],
+  },
+  {
+    id: 'pe-s2',
+    from: 'BBVA',
+    fromName: 'BBVA',
+    subject: 'SMS - Alerta de compra',
+    body: `BBVA Alerta: Compra de 480,50 EUR en AMAZON ES confirmada. Si no ha sido usted, cancele aqui:
+
+https://bbva-seguro.net/cancelar?ref=8821`,
+    date: '2024-10-16 22:14',
+    isPhishing: true,
+    channel: 'sms',
+    indicators: [
+      'Dominio falso "bbva-seguro.net" (el oficial es bbva.es)',
+      'Falsa alerta de compra nocturna para crear panico',
+      'Enlace de cancelacion que captura credenciales bancarias',
+      'SMS enviado a alta hora (22:14) para reducir la capacidad de razonamiento de la victima',
+    ],
+  },
+  {
+    id: 'pe-s3',
+    from: '+34 911 23 45 67',
+    fromName: 'MRW',
+    subject: 'SMS - Entrega fallida',
+    body: `MRW: Intentamos entregar su paquete pero no estaba. Reprograme la entrega en:
+
+https://mrw-entrega.com/reprogramar?ref=7741
+
+Su paquete sera devuelto al remitente en 24h si no confirma.`,
+    date: '2024-10-17 09:05',
+    isPhishing: true,
+    channel: 'sms',
+    indicators: [
+      'Dominio falso "mrw-entrega.com" (el oficial es mrw.es)',
+      'Urgencia: "24h" para forzar la accion',
+      'No incluye numero de seguimiento real ni datos del remitente',
+      'Las empresas de mensajeria reales no cobran ni piden datos por SMS con enlaces',
+    ],
+  },
+  {
+    id: 'pe-s4',
+    from: 'Movistar',
+    fromName: 'Movistar',
+    subject: 'SMS - Factura disponible',
+    body: `Movistar: Su factura de octubre ya esta disponible. Importe: 38,45 EUR. Consulte su factura en:
+
+https://www.movistar.es/facturas/online
+
+Gracias por su confianza.`,
+    date: '2024-10-18 08:00',
+    isPhishing: false,
+    channel: 'sms',
+    indicators: [],
+  },
+  {
+    id: 'pe-s5',
+    from: '+44 7700 900123',
+    fromName: 'DHL',
+    subject: 'SMS - Aduana',
+    body: `DHL: Su envio internacional requiere pago de arancel aduanero de 3,50 GBP antes de la entrega. Complete el pago en:
+
+http://dhl-customs-fee.com/pay?track=JD014587`,
+    date: '2024-10-19 14:22',
+    isPhishing: true,
+    channel: 'sms',
+    indicators: [
+      'Dominio falso "dhl-customs-fee.com" (DHL usa dhl.com)',
+      'SMS desde un numero britanico (+44) para un envio internacional, tecnica comun en smishing transfronterizo',
+      'Solicita pago de "arancel aduanero" por SMS, algo que la aduana real no hace asi',
+      'Enlace directo a pagina de pago sin autenticacion previa en el portal oficial',
+    ],
+  },
+  {
+    id: 'pe-s6',
+    from: 'Amazon',
+    fromName: 'Amazon',
+    subject: 'SMS - Pedido confirmado',
+    body: `Amazon: Tu pedido #114-8821347-2205510 ha sido confirmado. Total: 29,99 EUR. Entrega estimada: 22 oct.
+
+Ver o modificar tu pedido:
+https://www.amazon.es/your-orders?id=114-8821347`,
+    date: '2024-10-20 10:15',
+    isPhishing: false,
+    channel: 'sms',
+    indicators: [],
+  },
+  {
+    id: 'pe-s7',
+    from: '+34 655 88 21 00',
+    fromName: 'Banco Santander',
+    subject: 'SMS - Verificacion de cuenta',
+    body: `Santander: Hemos detectado un acceso no autorizado a su cuenta. Para proteger sus fondos, verifique su identidad inmediatamente:
+
+https://santander-verify.info/auth?id=9921
+
+Si no actua en 1 hora, su cuenta sera bloqueada.`,
+    date: '2024-10-21 03:45',
+    isPhishing: true,
+    channel: 'sms',
+    indicators: [
+      'Dominio falso "santander-verify.info" (el oficial es santander.es)',
+      'SMS a las 3:45 AM para aprovechar la baja atencion y crear urgencia',
+      'Amenaza de bloqueo "en 1 hora" para forzar accion inmediata',
+      'Numero de telefono del remitente no coincide con los SMS oficiales de Santander',
+    ],
+  },
+  {
+    id: 'pe-s8',
+    from: 'Gas Natural',
+    fromName: 'Naturgy',
+    subject: 'SMS - Reembolso disponible',
+    body: `Naturgy: Tiene un reembolso de 52,30 EUR disponible por ajuste de su factura de gas. Para reclamarlo, actualice sus datos bancarios:
+
+https://naturgy-reembolso.com/claim?ref=NG8821`,
+    date: '2024-10-22 13:10',
+    isPhishing: true,
+    channel: 'sms',
+    indicators: [
+      'Dominio falso "naturgy-reembolso.com" (el oficial es naturgy.com)',
+      'Cebo economico: "reembolso de 52,30 EUR" para incitar a actuar',
+      'Solicita actualizar datos bancarios por SMS mediante un enlace externo',
+      'Las companias energeticas reales no piden datos bancarios por SMS',
+    ],
+  },
+  // ====== VOICE PHISHING (VISHING) ======
+  {
+    id: 'pe-v1',
+    from: 'Llamada telefonica',
+    fromName: 'Soporte Tecnico - Microsoft',
+    subject: 'Llamada entrante - +34 910 00 11 22',
+    body: `[TRANSCRIPCION DE LLAMADA]
+
+"Hola, le llamo del equipo de soporte tecnico de Microsoft. Hemos detectado que su equipo con Windows esta enviando senales de error graves a nuestros servidores, lo que indica una infeccion por malware.
+
+Para resolverlo, necesito que abra su navegador y visite la siguiente direccion para descargar la herramienta de reparacion:
+
+www.soporte-microsoft-tech.com/fix
+
+No apague el equipo, eso podria causar danos permanentes a sus archivos. Necesito que lo haga ahora mismo mientras le acompano por telefono."`,
+    date: '2024-10-15 10:30',
+    isPhishing: true,
+    channel: 'call',
+    indicators: [
+      'Microsoft nunca llama por telefono para avisar de infecciones (no tienen ese servicio)',
+      'Pide visitar un dominio externo "soporte-microsoft-tech.com" para descargar software',
+      'Crea urgencia: "no apague el equipo" y "danos permanentes" para evitar que la victima piense',
+      'Tecnica de vishing clasica: el atacante mantiene a la victima en linea mientras descarga malware',
+    ],
+  },
+  {
+    id: 'pe-v2',
+    from: 'Llamada telefonica',
+    fromName: 'Banco - Departamento de Fraude',
+    subject: 'Llamada entrante - +34 912 33 44 55',
+    body: `[TRANSCRIPCION DE LLAMADA]
+
+"Buenas tardes, le llamo del departamento de fraudes de su banco. Hemos detectado dos cargos sospechosos en su tarjeta de credito: uno de 1.200 EUR en una tienda de electronica y otro de 850 EUR en una plataforma de apuestas.
+
+Para bloquear estas transacciones y proteger su cuenta, necesito que me confirme su numero de tarjeta completo, el codigo CVV de la parte trasada y el codigo OTP que le acabamos de enviar por SMS.
+
+Es urgente, si no confirma ahora los cargos seran aprobados."`,
+    date: '2024-10-16 16:45',
+    isPhishing: true,
+    channel: 'call',
+    indicators: [
+      'Ningun banco legitimo pide el codigo CVV ni el PIN por telefono',
+      'Solicita el codigo OTP del SMS: el banco real nunca lo pide, solo lo envia para que lo introduzcas tu',
+      'Falsos cargos de gran cuantia (1.200 y 850 EUR) para crear panico',
+      'Urgencia: "si no confirma ahora los cargos seran aprobados" para forzar respuesta rapida',
+    ],
+  },
+  {
+    id: 'pe-v3',
+    from: 'Llamada telefonica',
+    fromName: 'Agencia Tributaria',
+    subject: 'Llamada entrante - +34 913 55 66 77',
+    body: `[TRANSCRIPCION DE LLAMADA]
+
+"Le llamamos de la Agencia Tributaria. Tras la revision de su declaracion del IRPF del ano pasado, se ha detectado un error que resulta en un pago pendiente de 1.847 EUR.
+
+Para evitar el embargo de sus cuentas, debe realizar el pago inmediatamente mediante transferencia bancaria a la cuenta que le voy a dictar. Tambien necesitamos confirmar su DNI y direccion fiscal.
+
+Tiene hasta las 18:00 de hoy para regularizar su situacion."`,
+    date: '2024-10-17 11:20',
+    isPhishing: true,
+    channel: 'call',
+    indicators: [
+      'La Agencia Tributaria real nunca exige pagos por telefono ni pide transferencias a cuentas bancarias concretas',
+      'Amenaza de embargo inmediato para crear terror',
+      'Pide datos personales (DNI, direccion fiscal) por telefono, algo que Hacienda nunca hace',
+      'Plazo artificial "hasta las 18:00 de hoy" para forzar el pago sin verificacion',
+    ],
+  },
+  {
+    id: 'pe-v4',
+    from: 'Llamada telefonica',
+    fromName: 'Microsoft 365 - IT Corporativo',
+    subject: 'Llamada interna - Extension 4200',
+    body: `[TRANSCRIPCION DE LLAMADA]
+
+"Hola, soy del equipo de IT corporativo. Estamos migrando los buzones de correo al nuevo servidor de Microsoft 365 y necesitamos que me confirme su usuario y contrasena de red para completar la migracion de su cuenta.
+
+Es rapido, solo tardaremos un par de minutos. Si no lo hacemos ahora, su correo quedara inactivo esta tarde."`,
+    date: '2024-10-18 09:15',
+    isPhishing: true,
+    channel: 'call',
+    indicators: [
+      'IT corporativo legitimo nunca pide la contrasena por telefono (la conoce sin necesidad de pedirla)',
+      'Amenaza de "correo inactivo esta tarde" para forzar la respuesta',
+      'Vishing interno: el atacante se hace pasar por un companero de IT para ganar confianza',
+      'Solicita credenciales de red, que son la llave a todos los sistemas corporativos',
+    ],
+  },
+  {
+    id: 'pe-v5',
+    from: 'Llamada telefonica',
+    fromName: 'Clinica Medica Salud Plus',
+    subject: 'Llamada entrante - +34 914 77 88 99',
+    body: `[TRANSCRIPCION DE LLAMADA]
+
+"Le llamamos de la Clinica Salud Plus para confirmar su cita medica del proximo miercoles a las 10:00. Su medico, el doctor Fernandez, ha solicitado que actualicemos sus datos.
+
+Para confirmar la cita, necesitamos que nos verifique su nombre completo, fecha de nacimiento y numero de seguridad social. Tambien necesitamos confirmar su direccion para el envio de resultados analiticos."`,
+    date: '2024-10-19 14:00',
+    isPhishing: true,
+    channel: 'call',
+    indicators: [
+      'Solicita datos personales sensibles (numero de seguridad social, fecha de nacimiento) por telefono sin verificacion previa',
+      'Usa una excusa creible (confirmacion de cita medica) para obtener informacion',
+      'El nombre del medico y la clinica son genericos y dificiles de verificar en el momento',
+      'Los datos solicitados permiten robo de identidad',
+    ],
+  },
+  // ====== QR PHISHING (QUISHING) ======
+  {
+    id: 'pe-q1',
+    from: 'Pegatina en la calle',
+    fromName: 'Ayuntamiento - Parking',
+    subject: 'Codigo QR - Pago de parking',
+    body: `[CODIGO QR ENCONTRADO EN UNA PEGATINA]
+
+Has escaneado un codigo QR pegado sobre la senalizacion oficial del parking municipal. La pagina que se abre muestra:
+
+"Parking Municipal - Paga tu estancia
+Tarifa: 2,50 EUR/hora
+Introduce tu matricula y paga con tarjeta:
+
+[Formulario con campos: Matricula, Numero de tarjeta, Caducidad, CVV]
+
+http://parking-municipio-pay.com/tarifa"`,
+    date: '2024-10-20 13:40',
+    isPhishing: true,
+    channel: 'qr',
+    indicators: [
+      'Codigo QR pegado sobre la senalizacion oficial (quishing: pegatinas falsas sobre QR reales)',
+      'Dominio "parking-municipio-pay.com" no es oficial del ayuntamiento',
+      'Solicita datos bancarios completos (numero de tarjeta, CVV) en un formulario externo',
+      'El ayuntamiento real usa apps oficiales o parquimetros, no QR pegados con formulario de tarjeta',
+    ],
+  },
+  {
+    id: 'pe-q2',
+    from: 'Email con codigo QR',
+    fromName: 'Reembolso - Correos',
+    subject: 'Correo con QR - Escanea para tu reembolso',
+    body: `[CORREO CON CODIGO QR ADJUNTO]
+
+"Estimado cliente,
+
+Tiene un reembolso de 7,20 EUR pendiente por un envio no completado. Escanee el codigo QR adjunto para reclamar su reembolso directamente en su cuenta bancaria.
+
+El codigo QR es valido por 48 horas.
+
+Departamento de Reembolsos - Correos"`,
+    date: '2024-10-21 18:15',
+    isPhishing: true,
+    channel: 'qr',
+    indicators: [
+      'Codigo QR enviado por email en lugar de un enlace normal (diseno para evadir filtros anti-phishing)',
+      'No se puede verificar la URL antes de escanear el QR (a diferencia de un enlace visible)',
+      'Cebo economico: "reembolso de 7,20 EUR" para incitar a escanear',
+      'Dominio del remitente no es el oficial de Correos',
+    ],
+  },
+  {
+    id: 'pe-q3',
+    from: 'Pegatina en restaurante',
+    fromName: 'Restaurante La Tasca',
+    subject: 'Codigo QR - Carta del menu',
+    body: `[CODIGO QR EN LA MESA DEL RESTAURANTE]
+
+Has escaneado el codigo QR de la mesa para ver la carta. La pagina que se abre muestra el menu normal del restaurante con precios y platos habituales.
+
+Al final de la pagina hay un boton: "Pagar cuenta directamente" que lleva a la pasarela de pago del propio restaurante.
+
+https://latacca.es/menu`,
+    date: '2024-10-22 20:30',
+    isPhishing: false,
+    channel: 'qr',
+    indicators: [],
+  },
+  {
+    id: 'pe-q4',
+    from: 'Cartel en parada de autobus',
+    fromName: 'Metro de Madrid',
+    subject: 'Codigo QR - Recarga de billete',
+    body: `[CODIGO QR EN UN CARTEL DE LA PARADA]
+
+Has escaneado un codigo QR en un cartel de la parada de metro que dice "Recarga tu billete aqui". La pagina que se abre muestra:
+
+"Metro de Madrid - Recarga rapida
+Introduce tu numero de tarjeta de transporte y recarga con tarjeta:
+
+[Formulario: Numero de tarjeta transporte, Numero de tarjeta bancaria, CVV]
+
+http://metro-madrid-recarga.com/pay"`,
+    date: '2024-10-23 08:50',
+    isPhishing: true,
+    channel: 'qr',
+    indicators: [
+      'Dominio "metro-madrid-recarga.com" no es el oficial (metromadrid.es)',
+      'Solicita numero de tarjeta bancaria y CVV en un formulario externo',
+      'Codigo QR en cartel publico, facilmente sustituible por un atacante',
+      'Metro de Madrid usa maquinas recargadoras y app oficial, no QR con formularios de pago',
+    ],
+  },
+  // ====== PUSH NOTIFICATIONS / APP PHISHING ======
+  {
+    id: 'pe-p1',
+    from: 'Notificacion push',
+    fromName: 'App Banca - CaixaBank',
+    subject: 'Push - Confirmacion de transferencia',
+    body: `[NOTIFICACION PUSH EN EL MOVIL]
+
+"CaixaBank: Transferencia saliente de 1.500 EUR a beneficiario nuevo "MARIA GARCIA LOPEZ".
+
+Si no reconoce esta transferencia, toque aqui para cancelarla inmediatamente:
+
+[Boton: Cancelar transferencia -> https://caixabank-alerta.net/cancel?id=8821]"`,
+    date: '2024-10-24 17:20',
+    isPhishing: true,
+    channel: 'push',
+    indicators: [
+      'Dominio falso "caixabank-alerta.net" (el oficial es caixabank.es)',
+      'Falsa alerta de transferencia para incitar a tocar el boton de cancelacion',
+      'Las apps de banca reales abren la propia app, no un enlace externo en el navegador',
+      'El boton "cancelar" lleva a una pagina de phishing que captura credenciales',
+    ],
+  },
+  {
+    id: 'pe-p2',
+    from: 'Notificacion push',
+    fromName: 'WhatsApp',
+    subject: 'Push - Codigo de verificacion',
+    body: `[NOTIFICACION PUSH EN EL MOVIL]
+
+"WhatsApp: Tu codigo de verificacion es 882-133. No lo compartas con nadie.
+
+Si no solicitaste este codigo, alguien podria estar intentando acceder a tu cuenta."`,
+    date: '2024-10-25 09:00',
+    isPhishing: false,
+    channel: 'push',
+    indicators: [],
+  },
+  {
+    id: 'pe-p3',
+    from: 'Notificacion push',
+    fromName: 'Google Play',
+    subject: 'Push - Actualizacion de seguridad requerida',
+    body: `[NOTIFICACION PUSH EN EL MOVIL]
+
+"Google Play Security: Se ha detectado una aplicacion maliciosa en su dispositivo. Instale urgentemente la actualizacion de seguridad de Google Play Protect desde:
+
+[Boton: Instalar actualizacion -> http://google-play-protect-update.com/install]
+
+Su dispositivo sera bloqueado si no actualiza en 2 horas."`,
+    date: '2024-10-26 22:30',
+    isPhishing: true,
+    channel: 'push',
+    indicators: [
+      'Dominio falso "google-play-protect-update.com" (Google usa google.com / play.google.com)',
+      'Google Play Protect se actualiza solo desde la app oficial, nunca mediante enlaces externos',
+      'Amenaza de bloqueo del dispositivo "en 2 horas" para forzar la instalacion',
+      'Notificacion nocturna (22:30) para reducir la capacidad de razonamiento',
+    ],
+  },
+  {
+    id: 'pe-p4',
+    from: 'Notificacion push',
+    fromName: 'Microsoft Authenticator',
+    subject: 'Push - Solicitud de aprobacion de login',
+    body: `[NOTIFICACION PUSH EN EL MOVIL]
+
+"Microsoft Authenticator: Aprobar inicio de sesion?
+Usuario: tu.correo@empresa.com
+Ubicacion: Madrid, Espana
+App: Microsoft 365
+
+[Aprobar] [Denegar]"`,
+    date: '2024-10-27 08:45',
+    isPhishing: false,
+    channel: 'push',
+    indicators: [],
+  },
+  {
+    id: 'pe-p5',
+    from: 'Notificacion push',
+    fromName: 'Amazon Prime',
+    subject: 'Push - Suscripcion cancelada',
+    body: `[NOTIFICACION PUSH EN EL MOVIL]
+
+"Amazon Prime: Su suscripcion ha sido cancelada por un problema de pago. Para restaurar su cuenta y no perder sus series y peliculas, actualice su metodo de pago en:
+
+[Boton: Restaurar cuenta -> https://amazon-prime-restore.com/payment?id=9921]
+
+Tiene 24 horas antes del borrado de su cuenta."`,
+    date: '2024-10-28 19:10',
+    isPhishing: true,
+    channel: 'push',
+    indicators: [
+      'Dominio falso "amazon-prime-restore.com" (Amazon usa amazon.es)',
+      'Cebo de perdida de contenido ("series y peliculas") para incitar a actuar',
+      'Amenaza de borrado de cuenta "en 24 horas"',
+      'Amazon nunca envia enlaces de pago por push notification, todo se gestiona en la app o web oficial',
+    ],
   },
 ];
 
