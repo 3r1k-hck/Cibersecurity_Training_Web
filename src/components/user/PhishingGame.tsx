@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Shield, Mail, MessageSquare, Phone, QrCode, Bell, CheckCircle2, XCircle, ArrowRight, Eye, Lightbulb, RotateCcw, Trophy } from 'lucide-react';
-import { phishingEmails, type PhishingEmail, type PhishingChannel } from '@/lib/data';
+import { Shield, Mail, MessageSquare, Phone, QrCode, Bell, CheckCircle2, XCircle, ArrowRight, Eye, Lightbulb, RotateCcw, Trophy, Flame, Snowflake, Zap } from 'lucide-react';
+import { phishingEmails, type PhishingEmail, type PhishingChannel, type PhishingDifficulty } from '@/lib/data';
 import type { PhishingAnswerRecord } from '@/types';
 import type { SessionResult } from '@/types';
 
@@ -24,20 +24,79 @@ const channelMeta: Record<PhishingChannel, { icon: React.ReactNode; label: strin
   push: { icon: <Bell className="w-4 h-4" />, label: 'Notificacion push', hint: 'Simulador de Notificaciones Push' },
 };
 
+const difficultyMeta: Record<PhishingDifficulty, { label: string; description: string; icon: React.ReactNode; color: string; ring: string; bg: string; text: string }> = {
+  beginner: {
+    label: 'Principiante',
+    description: 'Correos y SMS obvios con dominios falsos, errores tipograficos y urgencia extrema. Ideal para empezar.',
+    icon: <Snowflake className="w-5 h-5" />,
+    color: 'emerald',
+    ring: 'hover:border-emerald-500/60',
+    bg: 'hover:bg-emerald-500/5',
+    text: 'text-emerald-400',
+  },
+  intermediate: {
+    label: 'Intermedio',
+    description: 'Spear phishing, BEC, vishing y quishing con indicios sutiles. Requiere atencion al detalle.',
+    icon: <Zap className="w-5 h-5" />,
+    color: 'amber',
+    ring: 'hover:border-amber-500/60',
+    bg: 'hover:bg-amber-500/5',
+    text: 'text-amber-400',
+  },
+  advanced: {
+    label: 'Avanzado',
+    description: 'Mensajes legitimos que parecen phishing, QR enganosos y push dificiles de clasificar. Para expertos.',
+    icon: <Flame className="w-5 h-5" />,
+    color: 'rose',
+    ring: 'hover:border-rose-500/60',
+    bg: 'hover:bg-rose-500/5',
+    text: 'text-rose-400',
+  },
+};
+
+const difficultyOrder: PhishingDifficulty[] = ['beginner', 'intermediate', 'advanced'];
+
 function channelOf(e: PhishingEmail): PhishingChannel {
   return e.channel ?? 'email';
 }
 
+function difficultyOf(e: PhishingEmail): PhishingDifficulty {
+  return e.difficulty ?? 'beginner';
+}
+
+function filterByDifficulty(items: PhishingEmail[], diff: PhishingDifficulty): PhishingEmail[] {
+  return items.filter((e) => difficultyOf(e) === diff);
+}
+
 export default function PhishingGame({ onComplete, bestScore }: Props) {
-  const [emails, setEmails] = useState<PhishingEmail[]>(() => shuffleAndPick(phishingEmails, MAX_QUESTIONS));
+  const [phase, setPhase] = useState<'select' | 'playing'>('select');
+  const [difficulty, setDifficulty] = useState<PhishingDifficulty>('beginner');
+  const [emails, setEmails] = useState<PhishingEmail[]>([]);
   const [idx, setIdx] = useState(0);
   const [answers, setAnswers] = useState<PhishingAnswerRecord[]>([]);
   const [revealed, setRevealed] = useState(false);
   const [lastChoice, setLastChoice] = useState<'phishing' | 'real' | null>(null);
   const [finished, setFinished] = useState(false);
 
+  function startGame(diff: PhishingDifficulty) {
+    const pool = filterByDifficulty(phishingEmails, diff);
+    setEmails(shuffleAndPick(pool, MAX_QUESTIONS));
+    setDifficulty(diff);
+    setIdx(0);
+    setAnswers([]);
+    setRevealed(false);
+    setLastChoice(null);
+    setFinished(false);
+    setPhase('playing');
+  }
+
+  function backToSelect() {
+    setPhase('select');
+    setFinished(false);
+  }
+
   const email = emails[idx];
-  const ch = channelOf(email);
+  const ch = email ? channelOf(email) : 'email';
   const meta = channelMeta[ch];
 
   function choose(choice: 'phishing' | 'real') {
@@ -67,12 +126,61 @@ export default function PhishingGame({ onComplete, bestScore }: Props) {
   }
 
   function restart() {
-    setEmails(shuffleAndPick(phishingEmails, MAX_QUESTIONS));
+    const pool = filterByDifficulty(phishingEmails, difficulty);
+    setEmails(shuffleAndPick(pool, MAX_QUESTIONS));
     setIdx(0);
     setAnswers([]);
     setRevealed(false);
     setLastChoice(null);
     setFinished(false);
+  }
+
+  if (phase === 'select') {
+    const counts: Record<PhishingDifficulty, number> = {
+      beginner: filterByDifficulty(phishingEmails, 'beginner').length,
+      intermediate: filterByDifficulty(phishingEmails, 'intermediate').length,
+      advanced: filterByDifficulty(phishingEmails, 'advanced').length,
+    };
+    return (
+      <div className="bg-slate-900/60 border border-slate-800 rounded-2xl overflow-hidden">
+        <div className="px-5 py-3 border-b border-slate-800 bg-slate-950/40">
+          <div className="flex items-center gap-2 text-sm text-slate-400">
+            <Shield className="w-4 h-4 text-emerald-400" />
+            <span>Selecciona tu nivel de dificultad</span>
+          </div>
+        </div>
+        <div className="p-5 space-y-3">
+          {difficultyOrder.map((diff) => {
+            const dm = difficultyMeta[diff];
+            return (
+              <button
+                key={diff}
+                onClick={() => startGame(diff)}
+                className={`w-full flex items-start gap-4 p-4 border border-slate-700 ${dm.ring} ${dm.bg} rounded-xl transition-all text-left group`}
+              >
+                <div className={`shrink-0 w-11 h-11 rounded-lg bg-${dm.color}-500/10 border border-${dm.color}-500/20 flex items-center justify-center ${dm.text}`}>
+                  {dm.icon}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-sm font-semibold text-white group-hover:text-slate-100">{dm.label}</span>
+                    <span className="text-[10px] font-mono text-slate-500 bg-slate-800 rounded-full px-2 py-0.5">{counts[diff]} escenarios</span>
+                  </div>
+                  <p className="text-xs text-slate-400 leading-relaxed">{dm.description}</p>
+                </div>
+                <ArrowRight className="w-4 h-4 text-slate-600 group-hover:text-slate-300 shrink-0 mt-1 transition-colors" />
+              </button>
+            );
+          })}
+          <div className="pt-2">
+            <p className="text-xs text-slate-500 text-center">
+              Cada partida selecciona {MAX_QUESTIONS} mensajes al azar del nivel elegido.
+              {bestScore > 0 && <span className="block mt-1">Tu mejor puntuacion: {bestScore} / {MAX_QUESTIONS}</span>}
+            </p>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   if (finished) {
@@ -83,10 +191,14 @@ export default function PhishingGame({ onComplete, bestScore }: Props) {
           <Trophy className="w-8 h-8 text-emerald-400" />
         </div>
         <h3 className="text-xl font-bold text-white">Modulo de Phishing Completado</h3>
-        <p className="text-slate-400 mt-2">Identificaste correctamente <span className="text-emerald-400 font-bold">{score}</span> de {emails.length} mensajes.</p>
+        <p className="text-slate-400 mt-2">Nivel <span className={difficultyMeta[difficulty].text + ' font-semibold'}>{difficultyMeta[difficulty].label}</span></p>
+        <p className="text-slate-400 mt-1">Identificaste correctamente <span className="text-emerald-400 font-bold">{score}</span> de {emails.length} mensajes.</p>
         <div className="flex items-center justify-center gap-3 mt-6">
           <button onClick={restart} className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-300 bg-slate-800 hover:bg-slate-700 rounded-lg transition-colors">
-            <RotateCcw className="w-4 h-4" /> Reintentar modulo
+            <RotateCcw className="w-4 h-4" /> Reintentar nivel
+          </button>
+          <button onClick={backToSelect} className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-300 bg-slate-800 hover:bg-slate-700 rounded-lg transition-colors">
+            <Shield className="w-4 h-4" /> Cambiar nivel
           </button>
         </div>
         <p className="text-xs text-slate-600 mt-4">Tu mejor puntuacion hasta ahora: {bestScore} / {MAX_QUESTIONS}</p>
@@ -101,7 +213,10 @@ export default function PhishingGame({ onComplete, bestScore }: Props) {
           <span className="text-emerald-400">{meta.icon}</span>
           <span>{meta.hint}</span>
         </div>
-        <span className="text-xs font-mono text-slate-500">{idx + 1} / {emails.length}</span>
+        <div className="flex items-center gap-3">
+          <span className={`text-[10px] font-mono ${difficultyMeta[difficulty].text} bg-slate-800 rounded-full px-2 py-0.5`}>{difficultyMeta[difficulty].label}</span>
+          <span className="text-xs font-mono text-slate-500">{idx + 1} / {emails.length}</span>
+        </div>
       </div>
 
       <div className="px-5 py-1.5 bg-slate-950/30">
