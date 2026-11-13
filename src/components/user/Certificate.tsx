@@ -1,12 +1,13 @@
 import { useRef, useState } from 'react';
 import { Download, Award, Mail, Send, CheckCircle2, Loader2 } from 'lucide-react';
-import { drawCertificate, downloadCertificate, type CertificateData } from '@/lib/certificate';
+import { drawCertificate, downloadCertificate, type CertificateCourse, type CertificateData } from '@/lib/certificate';
 
 interface Props {
   username: string;
   score: number;
   total: number;
   date: number;
+  course: CertificateCourse;
 }
 
 const PASS_THRESHOLD = 0.7;
@@ -15,14 +16,14 @@ export function isPassing(score: number, total: number): boolean {
   return total > 0 && score / total >= PASS_THRESHOLD;
 }
 
-export default function Certificate({ username, score, total, date }: Props) {
+export default function Certificate({ username, score, total, date, course }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [emailMode, setEmailMode] = useState(false);
   const [recipientEmail, setRecipientEmail] = useState('');
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
 
-  const certData: CertificateData = { username, score, total, date };
+  const certData: CertificateData = { username, score, total, date, course };
 
   function getCanvasDataUrl(): string | null {
     const canvas = canvasRef.current;

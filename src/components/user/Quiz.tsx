@@ -70,7 +70,7 @@ export default function Quiz({ onComplete, username }: Props) {
         <h3 className="text-xl font-bold text-white">Quiz completado</h3>
         <p className="text-slate-400 mt-2">Tu puntuacion: <span className="text-cyan-400 font-bold">{score}</span> / {questions.length}.</p>
         {passing ? (
-          <Certificate username={username} score={score} total={questions.length} date={Date.now()} />
+          <Certificate username={username} score={score} total={questions.length} date={Date.now()} course="quiz" />
         ) : (
           <p className="mt-4 text-xs text-slate-500">Necesitas al menos 70% para aprobar y descargar el certificado. Sigue practicando.</p>
         )}

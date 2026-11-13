@@ -1,12 +1,26 @@
+export type CertificateCourse = 'quiz' | 'phishing';
+
 export interface CertificateData {
   username: string;
   score: number;
   total: number;
   date: number;
+  course: CertificateCourse;
 }
 
+const COURSE_TEXT: Record<CertificateCourse, { requirement: string; resultLabel: string }> = {
+  quiz: {
+    requirement: 'por completar el modulo de quiz de seguridad',
+    resultLabel: 'respuestas correctas',
+  },
+  phishing: {
+    requirement: 'por completar el juego de deteccion de phishing',
+    resultLabel: 'mensajes identificados correctamente',
+  },
+};
+
 export function drawCertificate(ctx: CanvasRenderingContext2D, w: number, h: number, data: CertificateData) {
-  const { username, score, total, date } = data;
+  const { username, score, total, date, course } = data;
 
   ctx.fillStyle = '#ffffff';
   ctx.fillRect(0, 0, w, h);
@@ -65,8 +79,8 @@ export function drawCertificate(ctx: CanvasRenderingContext2D, w: number, h: num
 
   ctx.fillStyle = '#475569';
   ctx.font = '16px Georgia, serif';
-  ctx.fillText('por completar el modulo de quiz de seguridad', w / 2, 420);
-  ctx.fillText(`con una puntuacion de ${score} de ${total} respuestas correctas`, w / 2, 444);
+  ctx.fillText(COURSE_TEXT[course].requirement, w / 2, 420);
+  ctx.fillText(`con una puntuacion de ${score} de ${total} ${COURSE_TEXT[course].resultLabel}`, w / 2, 444);
 
   const pct = Math.round((score / total) * 100);
   ctx.fillStyle = '#0d9488';

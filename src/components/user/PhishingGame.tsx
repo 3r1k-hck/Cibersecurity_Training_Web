@@ -3,8 +3,9 @@ import { Shield, Mail, MessageSquare, Phone, QrCode, Bell, CheckCircle2, XCircle
 import { phishingEmails, type PhishingEmail, type PhishingChannel, type PhishingDifficulty } from '@/lib/data';
 import type { PhishingAnswerRecord } from '@/types';
 import type { SessionResult } from '@/types';
+import Certificate, { isPassing } from '@/components/user/Certificate';
 
-const MAX_QUESTIONS = 10;
+export const MAX_PHISHING_QUESTIONS = 10;
 
 function shuffleAndPick<T>(items: T[], count: number): T[] {
   const shuffled = [...items].sort(() => Math.random() - 0.5);
@@ -14,6 +15,7 @@ function shuffleAndPick<T>(items: T[], count: number): T[] {
 interface Props {
   onComplete: (result: Pick<SessionResult, 'phishingScore' | 'phishingAnswers'>) => void;
   bestScore: number;
+  username: string;
 }
 
 const channelMeta: Record<PhishingChannel, { icon: React.ReactNode; label: string; hint: string }> = {
@@ -68,7 +70,7 @@ function filterByDifficulty(items: PhishingEmail[], diff: PhishingDifficulty): P
   return items.filter((e) => difficultyOf(e) === diff);
 }
 
-export default function PhishingGame({ onComplete, bestScore }: Props) {
+export default function PhishingGame({ onComplete, bestScore, username }: Props) {
   const [phase, setPhase] = useState<'select' | 'playing'>('select');
   const [difficulty, setDifficulty] = useState<PhishingDifficulty>('beginner');
   const [emails, setEmails] = useState<PhishingEmail[]>([]);
@@ -80,7 +82,7 @@ export default function PhishingGame({ onComplete, bestScore }: Props) {
 
   function startGame(diff: PhishingDifficulty) {
     const pool = filterByDifficulty(phishingEmails, diff);
-    setEmails(shuffleAndPick(pool, MAX_QUESTIONS));
+    setEmails(shuffleAndPick(pool, MAX_PHISHING_QUESTIONS));
     setDifficulty(diff);
     setIdx(0);
     setAnswers([]);
@@ -127,7 +129,7 @@ export default function PhishingGame({ onComplete, bestScore }: Props) {
 
   function restart() {
     const pool = filterByDifficulty(phishingEmails, difficulty);
-    setEmails(shuffleAndPick(pool, MAX_QUESTIONS));
+    setEmails(shuffleAndPick(pool, MAX_PHISHING_QUESTIONS));
     setIdx(0);
     setAnswers([]);
     setRevealed(false);
@@ -174,8 +176,8 @@ export default function PhishingGame({ onComplete, bestScore }: Props) {
           })}
           <div className="pt-2">
             <p className="text-xs text-slate-500 text-center">
-              Cada partida selecciona {MAX_QUESTIONS} mensajes al azar del nivel elegido.
-              {bestScore > 0 && <span className="block mt-1">Tu mejor puntuacion: {bestScore} / {MAX_QUESTIONS}</span>}
+              Cada partida selecciona {MAX_PHISHING_QUESTIONS} mensajes al azar del nivel elegido.
+              {bestScore > 0 && <span className="block mt-1">Tu mejor puntuacion: {bestScore} / {MAX_PHISHING_QUESTIONS}</span>}
             </p>
           </div>
         </div>
@@ -193,6 +195,11 @@ export default function PhishingGame({ onComplete, bestScore }: Props) {
         <h3 className="text-xl font-bold text-white">Modulo de Phishing Completado</h3>
         <p className="text-slate-400 mt-2">Nivel <span className={difficultyMeta[difficulty].text + ' font-semibold'}>{difficultyMeta[difficulty].label}</span></p>
         <p className="text-slate-400 mt-1">Identificaste correctamente <span className="text-emerald-400 font-bold">{score}</span> de {emails.length} mensajes.</p>
+        {isPassing(score, emails.length) ? (
+          <Certificate username={username} score={score} total={emails.length} date={Date.now()} course="phishing" />
+        ) : (
+          <p className="mt-4 text-xs text-slate-500">Necesitas al menos 70% para aprobar y descargar el certificado. Sigue practicando.</p>
+        )}
         <div className="flex items-center justify-center gap-3 mt-6">
           <button onClick={restart} className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-300 bg-slate-800 hover:bg-slate-700 rounded-lg transition-colors">
             <RotateCcw className="w-4 h-4" /> Reintentar nivel
@@ -201,7 +208,7 @@ export default function PhishingGame({ onComplete, bestScore }: Props) {
             <Shield className="w-4 h-4" /> Cambiar nivel
           </button>
         </div>
-        <p className="text-xs text-slate-600 mt-4">Tu mejor puntuacion hasta ahora: {bestScore} / {MAX_QUESTIONS}</p>
+        <p className="text-xs text-slate-600 mt-4">Tu mejor puntuacion hasta ahora: {bestScore} / {MAX_PHISHING_QUESTIONS}</p>
       </div>
     );
   }

@@ -1,47 +1,59 @@
 import { useMemo, useState } from 'react';
-import { Award, Download, Mail, Send, CheckCircle2, Loader2, Calendar, TrendingUp } from 'lucide-react';
+import { Award, Brain, Download, Mail, Send, CheckCircle2, Loader2, Calendar, TrendingUp } from 'lucide-react';
 import { useApp } from '@/context/AppContext';
-import { downloadCertificate, type CertificateData } from '@/lib/certificate';
+import { downloadCertificate, type CertificateCourse, type CertificateData } from '@/lib/certificate';
+import { isPassing } from '@/components/user/Certificate';
+import { MAX_PHISHING_QUESTIONS } from '@/components/user/PhishingGame';
+import type { SessionResult } from '@/types';
 
 const MAX_QUIZ = 10;
-const PASS_THRESHOLD = 0.7;
+
+const COURSE_LABEL: Record<CertificateCourse, string> = { quiz: 'Quiz', phishing: 'Phishing' };
 
 interface CertificateEntry {
-  sessionId: number;
+  key: string;
+  course: CertificateCourse;
   username: string;
-  quizScore: number;
+  score: number;
+  total: number;
   totalScore: number;
   completedAt: number;
+}
+
+function buildCertificates(sessions: SessionResult[], username: string): CertificateEntry[] {
+  const entries: CertificateEntry[] = [];
+  sessions.forEach((s, i) => {
+    const base = { username, totalScore: s.totalScore, completedAt: s.completedAt };
+    if (isPassing(s.quizScore, MAX_QUIZ)) {
+      entries.push({ ...base, key: `quiz-${i}`, course: 'quiz', score: s.quizScore, total: MAX_QUIZ });
+    }
+    if (s.quizScore === 0 && isPassing(s.phishingScore, MAX_PHISHING_QUESTIONS)) {
+      entries.push({ ...base, key: `phishing-${i}`, course: 'phishing', score: s.phishingScore, total: MAX_PHISHING_QUESTIONS });
+    }
+  });
+  return entries.sort((a, b) => b.completedAt - a.completedAt);
 }
 
 export default function CertificateHistory() {
   const { currentUser, records } = useApp();
   const myRecord = records.find((r) => r.id === currentUser?.id);
-  const [emailTarget, setEmailTarget] = useState<number | null>(null);
+  const [emailTarget, setEmailTarget] = useState<string | null>(null);
   const [recipientEmail, setRecipientEmail] = useState('');
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
 
   const certificates = useMemo<CertificateEntry[]>(() => {
     if (!myRecord || !currentUser) return [];
-    return myRecord.sessions
-      .map((s, i) => ({
-        sessionId: i,
-        username: currentUser.username,
-        quizScore: s.quizScore,
-        totalScore: s.totalScore,
-        completedAt: s.completedAt,
-      }))
-      .filter((s) => s.quizScore / MAX_QUIZ >= PASS_THRESHOLD)
-      .sort((a, b) => b.completedAt - a.completedAt);
+    return buildCertificates(myRecord.sessions, currentUser.username);
   }, [myRecord, currentUser]);
 
   function handleDownload(entry: CertificateEntry) {
     const data: CertificateData = {
       username: entry.username,
-      score: entry.quizScore,
-      total: MAX_QUIZ,
+      score: entry.score,
+      total: entry.total,
       date: entry.completedAt,
+      course: entry.course,
     };
     downloadCertificate(data);
   }
@@ -55,11 +67,11 @@ export default function CertificateHistory() {
 
     handleDownload(entry);
 
-    const pct = Math.round((entry.quizScore / MAX_QUIZ) * 100);
+    const pct = Math.round((entry.score / entry.total) * 100);
     const dateStr = new Date(entry.completedAt).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
 
     const subject = `Certificado de CyberTrain - ${entry.username}`;
-    const body = `Hola,\n\nAdjunto el certificado de finalizacion del modulo de concienciacion en ciberseguridad.\n\nEmpleado: ${entry.username}\nPuntuacion quiz: ${entry.quizScore}/${MAX_QUIZ} (${pct}%)\nPuntuacion total: ${entry.totalScore}/${MAX_QUIZ * 2}\nFecha: ${dateStr}\n\nEl archivo PNG del certificado se ha descargado automaticamente. Por favor, adjuntalo a este correo antes de enviarlo.\n\nSaludos,\nPlataforma CyberTrain`;
+    const body = `Hola,\n\nAdjunto el certificado de finalizacion del modulo de ${COURSE_LABEL[entry.course].toLowerCase()} de CyberTrain.\n\nEmpleado: ${entry.username}\nPuntuacion ${COURSE_LABEL[entry.course]}: ${entry.score}/${entry.total} (${pct}%)\nFecha: ${dateStr}\n\nEl archivo PNG del certificado se ha descargado automaticamente. Por favor, adjuntalo a este correo antes de enviarlo.\n\nSaludos,\nPlataforma CyberTrain`;
 
     const mailtoLink = `mailto:${encodeURIComponent(recipientEmail)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 
@@ -78,18 +90,20 @@ export default function CertificateHistory() {
           <Award className="w-8 h-8 text-slate-600" />
         </div>
         <h3 className="text-xl font-bold text-white">Aun no tienes certificados</h3>
-        <p className="text-slate-400 mt-2 text-sm">Completa el quiz de seguridad con al menos 70% de aciertos para obtener tu primer certificado.</p>
+        <p className="text-slate-400 mt-2 text-sm">Completa el quiz de seguridad o el juego de phishing con al menos 70% de aciertos para obtener tu primer certificado.</p>
       </div>
     );
   }
 
-  const bestQuiz = Math.max(...certificates.map((c) => c.quizScore));
+  const quizCount = certificates.filter((c) => c.course === 'quiz').length;
+  const phishingCount = certificates.filter((c) => c.course === 'phishing').length;
 
   return (
     <div className="space-y-4 animate-fade-up">
-      <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <StatCard icon={<Award className="w-5 h-5" />} label="Certificados Obtenidos" value={certificates.length} color="amber" />
-        <StatCard icon={<TrendingUp className="w-5 h-5" />} label="Mejor Puntuacion Quiz" value={`${bestQuiz}/${MAX_QUIZ}`} color="emerald" />
+        <StatCard icon={<Brain className="w-5 h-5" />} label="Certificados de Quiz" value={quizCount} color="cyan" />
+        <StatCard icon={<Mail className="w-5 h-5" />} label="Certificados de Phishing" value={phishingCount} color="emerald" />
         <StatCard icon={<Calendar className="w-5 h-5" />} label="Ultimo Certificado" value={new Date(certificates[0].completedAt).toLocaleDateString('es-ES', { dateStyle: 'short' })} color="cyan" />
       </div>
 
@@ -104,12 +118,13 @@ export default function CertificateHistory() {
 
         <div className="divide-y divide-slate-800/60">
           {certificates.map((cert) => {
-            const pct = Math.round((cert.quizScore / MAX_QUIZ) * 100);
+            const pct = Math.round((cert.score / cert.total) * 100);
             const dateStr = new Date(cert.completedAt).toLocaleString('es-ES', { dateStyle: 'long', timeStyle: 'short' });
-            const isEmailTarget = emailTarget === cert.sessionId;
+            const isEmailTarget = emailTarget === cert.key;
+            const label = COURSE_LABEL[cert.course];
 
             return (
-              <div key={cert.sessionId} className="p-5 hover:bg-slate-800/20 transition-colors">
+              <div key={cert.key} className="p-5 hover:bg-slate-800/20 transition-colors">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div className="flex items-start gap-3">
                     <div className="shrink-0 w-10 h-10 rounded-lg bg-amber-500/15 flex items-center justify-center">
@@ -117,18 +132,20 @@ export default function CertificateHistory() {
                     </div>
                     <div>
                       <p className="text-sm font-semibold text-white">
-                        Certificado #{cert.sessionId + 1}
+                        Certificado de {label}
                       </p>
                       <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1">
                         <span className="text-xs text-slate-400 flex items-center gap-1">
                           <Calendar className="w-3 h-3" /> {dateStr}
                         </span>
                         <span className="text-xs text-emerald-400 font-mono">
-                          Quiz: {cert.quizScore}/{MAX_QUIZ} ({pct}%)
+                          {label}: {cert.score}/{cert.total} ({pct}%)
                         </span>
-                        <span className="text-xs text-cyan-400 font-mono">
-                          Total: {cert.totalScore}/{MAX_QUIZ * 2}
-                        </span>
+                        {cert.course === 'quiz' && (
+                          <span className="text-xs text-cyan-400 font-mono">
+                            Total: {cert.totalScore}/{MAX_QUIZ + MAX_PHISHING_QUESTIONS}
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -141,7 +158,7 @@ export default function CertificateHistory() {
                       <Download className="w-3.5 h-3.5" /> Descargar
                     </button>
                     <button
-                      onClick={() => { setEmailTarget(isEmailTarget ? null : cert.sessionId); setSent(false); setRecipientEmail(''); }}
+                      onClick={() => { setEmailTarget(isEmailTarget ? null : cert.key); setSent(false); setRecipientEmail(''); }}
                       className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-300 bg-slate-800 border border-slate-700 rounded-lg hover:bg-slate-700 transition-colors"
                     >
                       <Mail className="w-3.5 h-3.5" /> Enviar
