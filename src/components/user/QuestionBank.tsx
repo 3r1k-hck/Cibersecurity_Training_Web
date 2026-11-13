@@ -103,11 +103,6 @@ export default function QuestionBank() {
     return counts;
   }, [activeGroups]);
 
-  const questions = useMemo(() => {
-    if (selectedCategory === 'Todas') return practiceQuestions;
-    return practiceQuestions.filter((q) => q.category === selectedCategory);
-  }, [selectedCategory]);
-
   function startQuiz() {
     setMode('quiz');
     setIdx(0);
@@ -118,14 +113,14 @@ export default function QuestionBank() {
 
   function confirm() {
     if (selected === null) return;
-    const q = questions[idx];
+    const q = filteredQuestions[idx];
     const correct = selected === q.correctIndex;
     setAnswers((a) => [...a, { question: q, selected, correct }]);
     setRevealed(true);
   }
 
   function next() {
-    if (idx + 1 >= questions.length) {
+    if (idx + 1 >= filteredQuestions.length) {
       setMode('results');
     } else {
       setIdx((i) => i + 1);
