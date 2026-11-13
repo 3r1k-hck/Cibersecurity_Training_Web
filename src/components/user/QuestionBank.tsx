@@ -72,7 +72,7 @@ const colorClasses: Record<string, { text: string; bg: string; border: string; g
 
 export default function QuestionBank() {
   const [mode, setMode] = useState<Mode>('menu');
-  const [selectedCats, setSelectedCats] = useState<Set<string>>(() => new Set(practiceQuestions.map((q) => q.category)));
+  const [selectedCats, setSelectedCats] = useState<Set<string>>(() => new Set());
   const [expandedGroup, setExpandedGroup] = useState<string | null>(null);
   const [idx, setIdx] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
