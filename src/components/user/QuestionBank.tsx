@@ -72,7 +72,7 @@ const colorClasses: Record<string, { text: string; bg: string; border: string; g
 
 export default function QuestionBank() {
   const [mode, setMode] = useState<Mode>('menu');
-  const [selectedCategory, setSelectedCategory] = useState<string>('Todas');
+  const [selectedCats, setSelectedCats] = useState<Set<string>>(() => new Set(practiceQuestions.map((q) => q.category)));
   const [expandedGroup, setExpandedGroup] = useState<string | null>(null);
   const [idx, setIdx] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
@@ -113,14 +113,14 @@ export default function QuestionBank() {
 
   function confirm() {
     if (selected === null) return;
-    const q = filteredQuestions[idx];
+    const q = activeQuestions[idx];
     const correct = selected === q.correctIndex;
     setAnswers((a) => [...a, { question: q, selected, correct }]);
     setRevealed(true);
   }
 
   function next() {
-    if (idx + 1 >= filteredQuestions.length) {
+    if (idx + 1 >= activeQuestions.length) {
       setMode('results');
     } else {
       setIdx((i) => i + 1);
@@ -137,38 +137,45 @@ export default function QuestionBank() {
     setAnswers([]);
   }
 
-  function selectCategory(cat: string) {
-    setSelectedCategory(cat);
-    setExpandedGroup(null);
+  function toggleCategory(cat: string) {
+    setSelectedCats((prev) => {
+      const next = new Set(prev);
+      if (next.has(cat)) next.delete(cat);
+      else next.add(cat);
+      return next;
+    });
   }
 
-  function selectGroup(g: CategoryGroup) {
-    setSelectedCategory('Todas');
+  function setCategoriesSelected(cats: string[], selected: boolean) {
+    setSelectedCats((prev) => {
+      const next = new Set(prev);
+      for (const c of cats) {
+        if (selected) next.add(c);
+        else next.delete(c);
+      }
+      return next;
+    });
+  }
+
+  function toggleGroup(g: CategoryGroup) {
     setExpandedGroup(expandedGroup === g.id ? null : g.id);
   }
 
-  function selectAllInGroup(g: CategoryGroup) {
-    const groupQuestions = g.categories.flatMap((cat) =>
-      practiceQuestions.filter((q) => q.category === cat),
-    );
-    if (groupQuestions.length > 0) {
-      setSelectedCategory(`__group__${g.id}`);
-      setExpandedGroup(null);
-    }
-  }
+  const allCategories = useMemo(() => Array.from(existingCategories), [existingCategories]);
+  const isAllSelected = allCategories.every((c) => selectedCats.has(c));
 
-  const filteredQuestions = useMemo(() => {
-    if (selectedCategory.startsWith('__group__')) {
-      const groupId = selectedCategory.slice('__group__'.length);
-      const group = activeGroups.find((g) => g.id === groupId);
-      if (!group) return [];
-      return practiceQuestions.filter((q) => group.categories.includes(q.category));
-    }
-    if (selectedCategory === 'Todas') return practiceQuestions;
-    return practiceQuestions.filter((q) => q.category === selectedCategory);
-  }, [selectedCategory, activeGroups]);
+  const activeQuestions = useMemo(
+    () => practiceQuestions.filter((q) => selectedCats.has(q.category)),
+    [selectedCats],
+  );
 
-  const activeQuestions = filteredQuestions;
+  const selectionLabel = isAllSelected
+    ? 'Todas las preguntas'
+    : selectedCats.size === 0
+      ? 'Ninguna categoria seleccionada'
+      : selectedCats.size === 1
+        ? Array.from(selectedCats)[0]
+        : `${selectedCats.size} categorias seleccionadas`;
 
   if (mode === 'menu') {
     return (
@@ -186,9 +193,9 @@ export default function QuestionBank() {
 
         <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-3 sm:p-5">
           <button
-            onClick={() => { selectCategory('Todas'); setExpandedGroup(null); }}
+            onClick={() => setCategoriesSelected(allCategories, !isAllSelected)}
             className={`w-full flex items-center justify-between px-4 py-3 rounded-xl border transition-all mb-3 ${
-              selectedCategory === 'Todas'
+              isAllSelected
                 ? 'bg-emerald-500/15 border-emerald-500/50 text-emerald-300'
                 : 'bg-slate-950/40 border-slate-700 text-slate-300 hover:border-slate-600'
             }`}
@@ -205,21 +212,21 @@ export default function QuestionBank() {
               const colors = colorClasses[g.color];
               const isExpanded = expandedGroup === g.id;
               const count = groupQuestionCounts[g.id] || 0;
-              const isGroupSelected = selectedCategory === `__group__${g.id}`;
+              const groupAllSelected = g.categories.every((c) => selectedCats.has(c));
 
               return (
                 <div key={g.id} className={`rounded-xl border transition-all ${isExpanded ? `${colors.border} bg-slate-950/30` : 'border-slate-800 bg-slate-950/20'}`}>
                   <div className="flex items-center gap-1">
                     <button
-                      onClick={() => selectGroup(g)}
-                      className={`flex-1 flex items-center justify-between px-4 py-3 rounded-xl transition-all ${isGroupSelected ? colors.bg : 'hover:bg-slate-800/30'}`}
+                      onClick={() => toggleGroup(g)}
+                      className={`flex-1 flex items-center justify-between px-4 py-3 rounded-xl transition-all ${groupAllSelected ? colors.bg : 'hover:bg-slate-800/30'}`}
                     >
                       <div className="flex items-center gap-3">
                         <span className={`inline-flex items-center justify-center w-9 h-9 rounded-lg ${colors.bg} ${colors.text}`}>
                           {g.icon}
                         </span>
                         <div className="text-left">
-                          <p className={`text-sm font-semibold ${isGroupSelected ? colors.text : 'text-white'}`}>{g.label}</p>
+                          <p className={`text-sm font-semibold ${groupAllSelected ? colors.text : 'text-white'}`}>{g.label}</p>
                           <p className="text-[10px] text-slate-500">{g.categories.length} categorias</p>
                         </div>
                       </div>
@@ -233,9 +240,9 @@ export default function QuestionBank() {
                   {isExpanded && (
                     <div className="px-3 pb-3 pt-1 space-y-1 animate-fade-up">
                       <button
-                        onClick={() => selectAllInGroup(g)}
+                        onClick={() => setCategoriesSelected(g.categories, !groupAllSelected)}
                         className={`w-full flex items-center justify-between px-3 py-2 text-xs rounded-lg border transition-all ${
-                          isGroupSelected
+                          groupAllSelected
                             ? `${colors.bg} ${colors.border} ${colors.text} font-semibold`
                             : 'bg-slate-900/40 border-slate-700/50 text-slate-400 hover:text-slate-200 hover:border-slate-600'
                         }`}
@@ -248,11 +255,11 @@ export default function QuestionBank() {
                       </button>
                       {g.categories.map((cat) => {
                         const catCount = practiceQuestions.filter((q) => q.category === cat).length;
-                        const isCatSelected = selectedCategory === cat;
+                        const isCatSelected = selectedCats.has(cat);
                         return (
                           <button
                             key={cat}
-                            onClick={() => selectCategory(cat)}
+                            onClick={() => toggleCategory(cat)}
                             className={`w-full flex items-center justify-between px-3 py-2 text-xs rounded-lg border transition-all ${
                               isCatSelected
                                 ? `${colors.bg} ${colors.border} ${colors.text} font-semibold`
@@ -280,11 +287,7 @@ export default function QuestionBank() {
             <div className="flex items-center gap-2">
               <Filter className="w-4 h-4 text-cyan-400" />
               <p className="text-sm font-semibold text-white">
-                {selectedCategory === 'Todas'
-                  ? 'Todas las preguntas'
-                  : selectedCategory.startsWith('__group__')
-                    ? activeGroups.find((g) => g.id === selectedCategory.slice('__group__'.length))?.label ?? 'Grupo'
-                    : selectedCategory}
+                {selectionLabel}
               </p>
             </div>
             <span className="text-xs font-mono text-slate-500">{activeQuestions.length} preguntas</span>
