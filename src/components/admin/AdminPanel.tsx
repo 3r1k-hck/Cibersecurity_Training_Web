@@ -41,7 +41,7 @@ export default function AdminPanel() {
               <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-violet-500/15 text-violet-400">ADMIN</span>
             </div>
             <button onClick={logout} className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-rose-400 transition-colors px-3 py-1.5 rounded-lg border border-slate-800 hover:border-rose-500/30">
-              <LogOut className="w-3.5 h-3.5" /> Cerrar Sesion
+              <LogOut className="w-3.5 h-3.5" /> Cerrar Sesión
             </button>
           </div>
         </div>

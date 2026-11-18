@@ -71,7 +71,7 @@ export default function CertificateHistory() {
     const dateStr = new Date(entry.completedAt).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
 
     const subject = `Certificado de CyberTrain - ${entry.username}`;
-    const body = `Hola,\n\nAdjunto el certificado de finalizacion del modulo de ${COURSE_LABEL[entry.course].toLowerCase()} de CyberTrain.\n\nEmpleado: ${entry.username}\nPuntuacion ${COURSE_LABEL[entry.course]}: ${entry.score}/${entry.total} (${pct}%)\nFecha: ${dateStr}\n\nEl archivo PNG del certificado se ha descargado automaticamente. Por favor, adjuntalo a este correo antes de enviarlo.\n\nSaludos,\nPlataforma CyberTrain`;
+    const body = `Hola,\n\nAdjunto el certificado de finalización del módulo de ${COURSE_LABEL[entry.course].toLowerCase()} de CyberTrain.\n\nEmpleado: ${entry.username}\nPuntuacion ${COURSE_LABEL[entry.course]}: ${entry.score}/${entry.total} (${pct}%)\nFecha: ${dateStr}\n\nEl archivo PNG del certificado se ha descargado automaticamente. Por favor, adjuntalo a este correo antes de enviarlo.\n\nSaludos,\nPlataforma CyberTrain`;
 
     const mailtoLink = `mailto:${encodeURIComponent(recipientEmail)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 

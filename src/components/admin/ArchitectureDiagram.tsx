@@ -7,10 +7,10 @@ export default function ArchitectureDiagram() {
         <div className="flex items-center gap-2 mb-4">
           <Server className="w-5 h-5 text-emerald-400" />
           <h2 className="text-sm font-semibold text-white">Arquitectura del Sistema</h2>
-          <span className="text-[10px] font-mono text-slate-500 ml-1">v2.0 · Produccion</span>
+          <span className="text-[10px] font-mono text-slate-500 ml-1">v2.0 · Producción</span>
         </div>
         <p className="text-xs text-slate-400 mb-6">
-          CyberTrain usa una arquitectura full-stack con base de datos PostgreSQL en Supabase, autenticacion real,
+          CyberTrain usa una arquitectura full-stack con base de datos PostgreSQL en Supabase, autenticación real,
           seguridad a nivel de fila (RLS), registro de eventos API/webhook y auditoria versionada en Git.
           Cada capa se comunica de forma verificable y segura.
         </p>
@@ -23,19 +23,19 @@ export default function ArchitectureDiagram() {
             title="Capa de Cliente (Navegador)"
             tech="React + TypeScript + Tailwind CSS"
             color="emerald"
-            items={['Interfaz de alumno: simulador phishing + quiz', 'Panel de profesor: resumen, BD, API, Git', 'Autenticacion con sesion Supabase persistente']}
+            items={['Interfaz de alumno: simulador phishing + quiz', 'Panel de profesor: resumen, BD, API, Git', 'Autenticación con sesión Supabase persistente']}
           />
           <Connector label="HTTPS / WebSocket · Supabase JS SDK" />
 
           {/* Capa 2: Auth */}
           <Layer
             icon={<Lock className="w-4 h-4" />}
-            title="Capa de Autenticacion"
+            title="Capa de Autenticación"
             tech="Supabase Auth (JWT + email/password)"
             color="cyan"
-            items={['Registro e inicio de sesion real con bcrypt', 'Sesiones persistentes con auto-refresh', 'Trigger automatico: crea perfil al registrarse']}
+            items={['Registro e inicio de sesión real con bcrypt', 'Sesiones persistentes con auto-refresh', 'Trigger automático: crea perfil al registrarse']}
           />
-          <Connector label="auth.uid() · verificado en cada peticion" />
+          <Connector label="auth.uid() · verificado en cada petición" />
 
           {/* Capa 3: Base de datos */}
           <Layer
@@ -53,17 +53,17 @@ export default function ArchitectureDiagram() {
             title="Capa de API / Webhook"
             tech="REST simulado + registro de eventos"
             color="amber"
-            items={['POST /api/v1/auth/register — registro de alumnos', 'POST /api/v1/auth/login — inicio de sesion', 'POST /api/v1/sessions/submit — envio de puntuaciones', 'Cada evento se almacena en api_logs con cabeceras, body y respuesta']}
+            items={['POST /api/v1/auth/register — registro de alumnos', 'POST /api/v1/auth/login — inicio de sesión', 'POST /api/v1/sessions/submit — envío de puntuaciones', 'Cada evento se almacena en api_logs con cabeceras, body y respuesta']}
           />
           <Connector label="Webhook dispatch → GitHub audit repo" />
 
           {/* Capa 5: Git */}
           <Layer
             icon={<Github className="w-4 h-4" />}
-            title="Capa de Auditoria Git"
+            title="Capa de Auditoría Git"
             tech="Commits simulados · github.com/cybtrain/audit"
             color="violet"
-            items={['Cada accion genera un commit de auditoria', 'Tipos: feat, fix, chore, audit, docs', 'Hash unico por commit · historial inmutable', 'Terminal Git en vivo en el panel del profesor']}
+            items={['Cada acción genera un commit de auditoria', 'Tipos: feat, fix, chore, audit, docs', 'Hash unico por commit · historial inmutable', 'Terminal Git en vivo en el panel del profesor']}
           />
         </div>
       </div>
@@ -84,7 +84,7 @@ export default function ArchitectureDiagram() {
           <FlowStep num="4" label="Commit de auditoria" icon={<Github className="w-4 h-4" />} color="violet" />
         </div>
         <p className="text-[11px] text-slate-500 mt-4 font-mono">
-          Cada paso se ejecuta secuencialmente. Si falla uno, los anteriores ya estan confirmados (idempotente).
+          Cada paso se ejecuta secuencialmente. Si falla uno, los anteriores ya están confirmados (idempotente).
           El profesor ve los resultados en su panel en tiempo real.
         </p>
       </div>
@@ -94,7 +94,7 @@ export default function ArchitectureDiagram() {
         <div className="px-5 py-3 border-b border-slate-800 bg-slate-950/40">
           <div className="flex items-center gap-2 text-sm text-slate-300">
             <Cloud className="w-4 h-4 text-emerald-400" />
-            <span className="font-medium">Detalles Tecnicos del Despliegue</span>
+            <span className="font-medium">Detalles Técnicos del Despliegue</span>
           </div>
         </div>
         <div className="overflow-x-auto scrollbar-thin">
@@ -102,19 +102,19 @@ export default function ArchitectureDiagram() {
             <thead>
               <tr className="text-slate-400 border-b border-slate-800 bg-slate-950/30">
                 <th className="text-left font-medium px-5 py-2.5">Componente</th>
-                <th className="text-left font-medium px-3 py-2.5">Tecnologia</th>
-                <th className="text-left font-medium px-3 py-2.5 hidden sm:table-cell">Funcion</th>
+                <th className="text-left font-medium px-3 py-2.5">Tecnología</th>
+                <th className="text-left font-medium px-3 py-2.5 hidden sm:table-cell">Función</th>
                 <th className="text-left font-medium px-5 py-2.5">Estado</th>
               </tr>
             </thead>
             <tbody className="text-slate-300">
               <TechRow name="Frontend" tech="React 18 + Vite" func="SPA con routing por rol" status="Operativo" statusColor="emerald" />
               <TechRow name="Base de Datos" tech="PostgreSQL 15 (Supabase)" func="5 tablas relacionales con RLS" status="Operativo" statusColor="emerald" />
-              <TechRow name="Autenticacion" tech="Supabase Auth" func="Email/password + JWT + sesion persistente" status="Operativo" statusColor="emerald" />
+              <TechRow name="Autenticación" tech="Supabase Auth" func="Email/password + JWT + sesión persistente" status="Operativo" statusColor="emerald" />
               <TechRow name="Seguridad RLS" tech="Politicas por tabla" func="Alumnos ven solo sus datos · profesores ven todo" status="Activo" statusColor="emerald" />
               <TechRow name="API REST" tech="Simulado en cliente" func="Registro de eventos con cabeceras y body" status="Operativo" statusColor="emerald" />
-              <TechRow name="Webhook" tech="Dispatch simulado" func="Notificacion a GitHub por cada accion" status="Operativo" statusColor="emerald" />
-              <TechRow name="Auditoria Git" tech="Commits simulados" func="Historial inmutable de acciones del sistema" status="Sincronizando" statusColor="cyan" />
+              <TechRow name="Webhook" tech="Dispatch simulado" func="Notificación a GitHub por cada acción" status="Operativo" statusColor="emerald" />
+              <TechRow name="Auditoría Git" tech="Commits simulados" func="Historial inmutable de acciónes del sistema" status="Sincronizando" statusColor="cyan" />
             </tbody>
           </table>
         </div>

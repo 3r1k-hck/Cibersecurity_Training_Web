@@ -56,7 +56,7 @@ export default function Certificate({ username, score, total, date, course }: Pr
     const dateStr = new Date(date).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
 
     const subject = `Certificado de CyberTrain - ${username}`;
-    const body = `Hola,\n\nAdjunto el certificado de finalizacion del modulo de concienciacion en ciberseguridad.\n\nEmpleado: ${username}\nPuntuacion: ${score}/${total} (${pct}%)\nFecha: ${dateStr}\n\nEl archivo PNG del certificado se ha descargado automaticamente. Por favor, adjuntalo a este correo antes de enviarlo.\n\nSaludos,\nPlataforma CyberTrain`;
+    const body = `Hola,\n\nAdjunto el certificado de finalización del módulo de concienciación en ciberseguridad.\n\nEmpleado: ${username}\nPuntuacion: ${score}/${total} (${pct}%)\nFecha: ${dateStr}\n\nEl archivo PNG del certificado se ha descargado automaticamente. Por favor, adjuntalo a este correo antes de enviarlo.\n\nSaludos,\nPlataforma CyberTrain`;
 
     const mailtoLink = `mailto:${encodeURIComponent(recipientEmail)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 

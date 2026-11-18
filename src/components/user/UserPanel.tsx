@@ -70,7 +70,7 @@ export default function UserPanel() {
             </div>
             <div>
               <p className="text-sm font-bold text-white leading-none">CyberTrain</p>
-              <p className="text-[10px] text-slate-500 leading-none mt-0.5">Portal de Formacion</p>
+              <p className="text-[10px] text-slate-500 leading-none mt-0.5">Portal de Formación</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -79,7 +79,7 @@ export default function UserPanel() {
               <span className="hidden sm:inline">{currentUser?.username}</span>
             </div>
             <button onClick={logout} className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-rose-400 transition-colors px-3 py-1.5 rounded-lg border border-slate-800 hover:border-rose-500/30">
-              <LogOut className="w-3.5 h-3.5" /> Cerrar Sesion
+              <LogOut className="w-3.5 h-3.5" /> Cerrar Sesión
             </button>
           </div>
         </div>

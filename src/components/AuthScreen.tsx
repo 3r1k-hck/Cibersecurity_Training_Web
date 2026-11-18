@@ -24,7 +24,7 @@ export default function AuthScreen() {
         return;
       }
       if (password.length < 6) {
-        setError('La contrasena debe tener al menos 6 caracteres.');
+        setError('La contraseña debe tener al menos 6 caracteres.');
         setSubmitting(false);
         return;
       }
@@ -36,13 +36,13 @@ export default function AuthScreen() {
       }
     } else {
       if (!email.trim() || !password) {
-        setError('Introduce tu correo y contrasena.');
+        setError('Introduce tu correo y contraseña.');
         setSubmitting(false);
         return;
       }
       const res = await login(email, password);
       if (!res.ok) {
-        setError(res.error ?? 'Error al iniciar sesion.');
+        setError(res.error ?? 'Error al iniciar sesión.');
       }
       setSubmitting(false);
     }
@@ -71,7 +71,7 @@ export default function AuthScreen() {
             <Shield className="w-9 h-9 text-white" strokeWidth={2.2} />
           </div>
           <h1 className="text-2xl font-bold text-white tracking-tight">CyberTrain</h1>
-          <p className="text-sm text-slate-400 mt-1">Plataforma de Formacion en Ciberseguridad</p>
+          <p className="text-sm text-slate-400 mt-1">Plataforma de Formación en Ciberseguridad</p>
         </div>
 
         <div className="bg-slate-900/70 backdrop-blur-xl border border-slate-800 rounded-2xl p-6 shadow-2xl">
@@ -115,7 +115,7 @@ export default function AuthScreen() {
                 className="w-full bg-transparent text-sm text-white placeholder-slate-500 focus:outline-none"
               />
             </Field>
-            <Field label="Contrasena" icon={<Lock className="w-4 h-4" />}>
+            <Field label="Contraseña" icon={<Lock className="w-4 h-4" />}>
               <input
                 type={showPass ? 'text' : 'password'}
                 value={password}
@@ -148,11 +148,11 @@ export default function AuthScreen() {
           <div className="mt-5 pt-4 border-t border-slate-800 text-xs text-slate-500 space-y-1">
             <p className="font-mono text-emerald-500/70">Crea tu cuenta o usa la de admin:</p>
             <p>Correo admin: <span className="text-slate-300 font-mono">admin@cybtrain.io</span></p>
-            <p>Contrasena admin: <span className="text-slate-300 font-mono">admin123456</span></p>
+            <p>Contraseña admin: <span className="text-slate-300 font-mono">admin123456</span></p>
           </div>
         </div>
         <p className="text-center text-xs text-slate-600 mt-6">
-          Autenticacion Supabase · Base de datos PostgreSQL · Seguridad a nivel de fila (RLS)
+          Autenticación Supabase · Base de datos PostgreSQL · Seguridad a nivel de fila (RLS)
         </p>
       </div>
     </div>

@@ -278,7 +278,7 @@ export default function PhishingGame({ onComplete, bestScore, username }: Props)
               <div className="bg-amber-500/5 border border-amber-500/20 rounded-xl p-4 mb-4">
                 <div className="flex items-center gap-2 mb-2">
                   <Lightbulb className="w-4 h-4 text-amber-400" />
-                  <p className="text-xs font-semibold text-amber-400 uppercase tracking-wide">Senales de Alarma Detectadas</p>
+                  <p className="text-xs font-semibold text-amber-400 uppercase tracking-wide">Señales de Alarma Detectadas</p>
                 </div>
                 <ul className="space-y-1.5">
                   {email.indicators.map((ind, i) => (
