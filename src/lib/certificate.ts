@@ -8,6 +8,19 @@ export interface CertificateData {
   course: CertificateCourse;
 }
 
+function verificationCode(data: CertificateData): string {
+  const seed = `${data.course}-${data.username}-${data.score}-${data.total}-${data.date}`;
+  let h1 = 0x811c9dc5;
+  let h2 = 0x1000193;
+  for (let i = 0; i < seed.length; i++) {
+    const c = seed.charCodeAt(i);
+    h1 = Math.imul(h1 ^ c, 0x01000193) >>> 0;
+    h2 = Math.imul(h2 ^ (c + 0x9e3779b9), 0x85ebca6b) >>> 0;
+  }
+  const hex = (h1.toString(16).padStart(8, '0') + h2.toString(16).padStart(8, '0')).toUpperCase();
+  return `${hex.slice(0, 4)}-${hex.slice(4, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}`;
+}
+
 interface CourseStyle {
   requirement: string;
   resultLabel: string;
@@ -216,6 +229,22 @@ export function drawCertificate(ctx: CanvasRenderingContext2D, w: number, h: num
   ctx.fillStyle = '#94a3b8';
   ctx.font = '12px Georgia, serif';
   ctx.fillText('CyberTrain Platform - Certificado verificado electronicamente', w / 2, h - 45);
+
+  const vCode = verificationCode(data);
+
+  ctx.strokeStyle = `${s.thin}66`;
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(w / 2 - 130, h - 35);
+  ctx.lineTo(w / 2 + 130, h - 35);
+  ctx.stroke();
+
+  ctx.fillStyle = '#64748b';
+  ctx.font = '11px Georgia, serif';
+  ctx.fillText('Codigo de verificacion', w / 2, h - 22);
+  ctx.fillStyle = '#0f172a';
+  ctx.font = 'bold 13px Georgia, serif';
+  ctx.fillText(vCode, w / 2, h - 8);
 }
 
 export function downloadCertificate(data: CertificateData) {
@@ -225,8 +254,9 @@ export function downloadCertificate(data: CertificateData) {
   const ctx = canvas.getContext('2d');
   if (!ctx) return;
   drawCertificate(ctx, canvas.width, canvas.height, data);
+  const vCode = verificationCode(data);
   const link = document.createElement('a');
-  link.download = `certificado-cybertrain-${data.username.replace(/\s+/g, '-').toLowerCase()}-${new Date(data.date).toISOString().split('T')[0]}.png`;
+  link.download = `certificado-cybertrain-${data.username.replace(/\s+/g, '-').toLowerCase()}-${new Date(data.date).toISOString().split('T')[0]}-${vCode}.png`;
   link.href = canvas.toDataURL('image/png');
   link.click();
 }
