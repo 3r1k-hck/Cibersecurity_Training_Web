@@ -8,39 +8,129 @@ export interface CertificateData {
   course: CertificateCourse;
 }
 
-const COURSE_TEXT: Record<CertificateCourse, { requirement: string; resultLabel: string }> = {
+interface CourseStyle {
+  requirement: string;
+  resultLabel: string;
+  subtitle: string;
+  accent: string;
+  accentMid: string;
+  thin: string;
+}
+
+const COURSE_STYLES: Record<CertificateCourse, CourseStyle> = {
   quiz: {
     requirement: 'por completar el modulo de quiz de seguridad',
     resultLabel: 'respuestas correctas',
+    subtitle: 'Concienciacion en Ciberseguridad',
+    accent: '#0d9488',
+    accentMid: '#0891b2',
+    thin: '#0891b2',
   },
   phishing: {
     requirement: 'por completar el juego de deteccion de phishing',
     resultLabel: 'mensajes identificados correctamente',
+    subtitle: 'Deteccion de Phishing y Ingenieria Social',
+    accent: '#b45309',
+    accentMid: '#d97706',
+    thin: '#b45309',
   },
 };
 
+function drawSeal(ctx: CanvasRenderingContext2D, cx: number, cy: number, accent: string) {
+  ctx.save();
+  ctx.translate(cx, cy);
+
+  ctx.beginPath();
+  ctx.arc(0, 0, 78, 0, Math.PI * 2);
+  ctx.fillStyle = `${accent}14`;
+  ctx.fill();
+
+  for (let i = 0; i < 2; i++) {
+    const r = 78 - i * 8;
+    ctx.beginPath();
+    ctx.arc(0, 0, r, 0, Math.PI * 2);
+    ctx.strokeStyle = i === 0 ? accent : `${accent}99`;
+    ctx.lineWidth = i === 0 ? 2.5 : 1;
+    ctx.stroke();
+  }
+
+  const spokes = 12;
+  for (let i = 0; i < spokes; i++) {
+    const a = (i / spokes) * Math.PI * 2;
+    const r1 = 70;
+    const r2 = 64;
+    ctx.beginPath();
+    ctx.moveTo(Math.cos(a) * r1, Math.sin(a) * r1);
+    ctx.lineTo(Math.cos(a) * r2, Math.sin(a) * r2);
+    ctx.strokeStyle = `${accent}80`;
+    ctx.lineWidth = 2;
+    ctx.stroke();
+  }
+
+  ctx.beginPath();
+  ctx.arc(0, 0, 54, 0, Math.PI * 2);
+  ctx.fillStyle = `${accent}1f`;
+  ctx.fill();
+  ctx.strokeStyle = accent;
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  ctx.fillStyle = accent;
+  ctx.font = 'bold 20px Georgia, serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('PHISH', 0, -12);
+  ctx.fillText('EXPERT', 0, 14);
+
+  ctx.font = 'bold 9px Georgia, serif';
+  ctx.fillStyle = `${accent}cc`;
+  ctx.fillText('SELLO DE APTITUD', 0, 38);
+
+  ctx.restore();
+}
+
 export function drawCertificate(ctx: CanvasRenderingContext2D, w: number, h: number, data: CertificateData) {
   const { username, score, total, date, course } = data;
+  const s = COURSE_STYLES[course];
 
   ctx.fillStyle = '#ffffff';
   ctx.fillRect(0, 0, w, h);
 
   const grad = ctx.createLinearGradient(0, 0, w, h);
-  grad.addColorStop(0, '#0d9488');
-  grad.addColorStop(0.5, '#0891b2');
-  grad.addColorStop(1, '#0d9488');
+  grad.addColorStop(0, s.accent);
+  grad.addColorStop(0.5, s.accentMid);
+  grad.addColorStop(1, s.accent);
 
   ctx.strokeStyle = grad;
   ctx.lineWidth = 6;
   ctx.strokeRect(24, 24, w - 48, h - 48);
 
-  ctx.strokeStyle = '#0891b2';
+  ctx.strokeStyle = s.thin;
   ctx.lineWidth = 1.5;
   ctx.strokeRect(38, 38, w - 76, h - 76);
+
+  if (course === 'phishing') {
+    ctx.save();
+    ctx.strokeStyle = `${s.accent}33`;
+    ctx.lineWidth = 1;
+    const step = 22;
+    for (let x = 52; x < w - 52; x += step) {
+      for (let y = 52; y < h - 52; y += step) {
+        ctx.beginPath();
+        ctx.moveTo(x - 3, y);
+        ctx.lineTo(x + 3, y);
+        ctx.moveTo(x, y - 3);
+        ctx.lineTo(x, y + 3);
+        ctx.stroke();
+      }
+    }
+    ctx.restore();
+  }
 
   ctx.fillStyle = '#0f172a';
   ctx.font = 'bold 48px Georgia, serif';
   ctx.textAlign = 'center';
+  ctx.textBaseline = 'alphabetic';
   ctx.fillText('CyberTrain', w / 2, 110);
 
   ctx.fillStyle = '#64748b';
@@ -58,8 +148,8 @@ export function drawCertificate(ctx: CanvasRenderingContext2D, w: number, h: num
   ctx.font = '36px Georgia, serif';
   ctx.fillText('Certificado de Formacion en', w / 2, 230);
   ctx.font = 'bold 36px Georgia, serif';
-  ctx.fillStyle = '#0d9488';
-  ctx.fillText('Concienciacion en Ciberseguridad', w / 2, 270);
+  ctx.fillStyle = s.accent;
+  ctx.fillText(s.subtitle, w / 2, 270);
 
   ctx.fillStyle = '#475569';
   ctx.font = '18px Georgia, serif';
@@ -69,7 +159,7 @@ export function drawCertificate(ctx: CanvasRenderingContext2D, w: number, h: num
   ctx.font = 'bold 32px Georgia, serif';
   ctx.fillText(username, w / 2, 365);
 
-  ctx.strokeStyle = '#0891b2';
+  ctx.strokeStyle = s.thin;
   ctx.lineWidth = 2;
   const nameWidth = ctx.measureText(username).width;
   ctx.beginPath();
@@ -79,13 +169,17 @@ export function drawCertificate(ctx: CanvasRenderingContext2D, w: number, h: num
 
   ctx.fillStyle = '#475569';
   ctx.font = '16px Georgia, serif';
-  ctx.fillText(COURSE_TEXT[course].requirement, w / 2, 420);
-  ctx.fillText(`con una puntuacion de ${score} de ${total} ${COURSE_TEXT[course].resultLabel}`, w / 2, 444);
+  ctx.fillText(s.requirement, w / 2, 420);
+  ctx.fillText(`con una puntuacion de ${score} de ${total} ${s.resultLabel}`, w / 2, 444);
 
   const pct = Math.round((score / total) * 100);
-  ctx.fillStyle = '#0d9488';
+  ctx.fillStyle = s.accent;
   ctx.font = 'bold 24px Georgia, serif';
   ctx.fillText(`(${pct}%)`, w / 2, 480);
+
+  if (course === 'phishing') {
+    drawSeal(ctx, w - 175, 545, s.accent);
+  }
 
   const d = new Date(date);
   const dateStr = d.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
@@ -93,6 +187,7 @@ export function drawCertificate(ctx: CanvasRenderingContext2D, w: number, h: num
   ctx.fillStyle = '#94a3b8';
   ctx.font = '14px Georgia, serif';
   ctx.textAlign = 'left';
+  ctx.textBaseline = 'alphabetic';
   ctx.fillText('Fecha de finalizacion', 100, h - 100);
   ctx.fillStyle = '#0f172a';
   ctx.font = 'bold 16px Georgia, serif';
@@ -108,7 +203,7 @@ export function drawCertificate(ctx: CanvasRenderingContext2D, w: number, h: num
   ctx.fillStyle = '#94a3b8';
   ctx.font = '14px Georgia, serif';
   ctx.fillText('Firma digital', w - 100, h - 100);
-  ctx.fillStyle = '#0d9488';
+  ctx.fillStyle = s.accent;
   ctx.font = 'italic bold 22px Georgia, serif';
   ctx.fillText('CyberTrain', w - 100, h - 78);
   ctx.strokeStyle = '#cbd5e1';
