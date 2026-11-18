@@ -34,7 +34,7 @@ const COURSE_STYLES: Record<CertificateCourse, CourseStyle> = {
   quiz: {
     requirement: 'por completar el modulo de quiz de seguridad',
     resultLabel: 'respuestas correctas',
-    subtitle: 'Concienciacion en Ciberseguridad',
+    subtitle: 'Concienciación en Ciberseguridad',
     accent: '#0d9488',
     accentMid: '#0891b2',
     thin: '#0891b2',
@@ -42,7 +42,7 @@ const COURSE_STYLES: Record<CertificateCourse, CourseStyle> = {
   phishing: {
     requirement: 'por completar el juego de deteccion de phishing',
     resultLabel: 'mensajes identificados correctamente',
-    subtitle: 'Deteccion de Phishing y Ingenieria Social',
+    subtitle: 'Detección de Phishing y Ingenieria Social',
     accent: '#b45309',
     accentMid: '#d97706',
     thin: '#b45309',
@@ -201,7 +201,7 @@ export function drawCertificate(ctx: CanvasRenderingContext2D, w: number, h: num
   ctx.font = '14px Georgia, serif';
   ctx.textAlign = 'left';
   ctx.textBaseline = 'alphabetic';
-  ctx.fillText('Fecha de finalizacion', 100, h - 100);
+  ctx.fillText('Fecha de finalización', 100, h - 100);
   ctx.fillStyle = '#0f172a';
   ctx.font = 'bold 16px Georgia, serif';
   ctx.fillText(dateStr, 100, h - 78);
@@ -241,7 +241,7 @@ export function drawCertificate(ctx: CanvasRenderingContext2D, w: number, h: num
 
   ctx.fillStyle = '#64748b';
   ctx.font = '11px Georgia, serif';
-  ctx.fillText('Codigo de verificacion', w / 2, h - 22);
+  ctx.fillText('Codigo de verificación', w / 2, h - 22);
   ctx.fillStyle = '#0f172a';
   ctx.font = 'bold 13px Georgia, serif';
   ctx.fillText(vCode, w / 2, h - 8);

@@ -18,7 +18,7 @@ export default function AdminPanel() {
     { id: 'architecture', label: 'Arquitectura', icon: <Network className="w-4 h-4" /> },
     { id: 'database', label: 'Base de Datos', icon: <Database className="w-4 h-4" /> },
     { id: 'api', label: 'Consola API', icon: <Webhook className="w-4 h-4" />, badge: apiLogs.length },
-    { id: 'git', label: 'Auditoria Git', icon: <Terminal className="w-4 h-4" />, badge: commits.length },
+    { id: 'git', label: 'Auditoría Git', icon: <Terminal className="w-4 h-4" />, badge: commits.length },
   ];
 
   return (
@@ -50,7 +50,7 @@ export default function AdminPanel() {
       <div className="max-w-6xl mx-auto px-4 py-6">
         <div className="flex items-center gap-2 mb-6 text-xs text-slate-500 font-mono">
           <Users className="w-3.5 h-3.5" />
-          <span>Sistema full-stack: 5 capas conectadas · PostgreSQL + Auth + RLS + API/Webhook + Auditoria Git · Ver pestana Arquitectura</span>
+          <span>Sistema full-stack: 5 capas conectadas · PostgreSQL + Auth + RLS + API/Webhook + Auditoría Git · Ver pestana Arquitectura</span>
         </div>
 
         <div className="flex gap-1 p-1 bg-slate-900/60 border border-slate-800 rounded-xl mb-6 overflow-x-auto scrollbar-thin">

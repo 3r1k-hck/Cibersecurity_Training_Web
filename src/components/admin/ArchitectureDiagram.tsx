@@ -11,7 +11,7 @@ export default function ArchitectureDiagram() {
         </div>
         <p className="text-xs text-slate-400 mb-6">
           CyberTrain usa una arquitectura full-stack con base de datos PostgreSQL en Supabase, autenticación real,
-          seguridad a nivel de fila (RLS), registro de eventos API/webhook y auditoria versionada en Git.
+          seguridad a nivel de fila (RLS), registro de eventos API/webhook y auditoría versionada en Git.
           Cada capa se comunica de forma verificable y segura.
         </p>
 
@@ -45,7 +45,7 @@ export default function ArchitectureDiagram() {
             color="blue"
             items={['profiles (usuarios + roles)', 'sessions (intentos de entrenamiento)', 'session_answers (respuestas detalladas)', 'api_logs (eventos API)', 'audit_commits (historial Git)']}
           />
-          <Connector label="Politicas RLS: cada alumno ve solo sus datos · profesores ven todo" />
+          <Connector label="Políticas RLS: cada alumno ve solo sus datos · profesores ven todo" />
 
           {/* Capa 4: API / Webhook */}
           <Layer
@@ -63,7 +63,7 @@ export default function ArchitectureDiagram() {
             title="Capa de Auditoría Git"
             tech="Commits simulados · github.com/cybtrain/audit"
             color="violet"
-            items={['Cada acción genera un commit de auditoria', 'Tipos: feat, fix, chore, audit, docs', 'Hash unico por commit · historial inmutable', 'Terminal Git en vivo en el panel del profesor']}
+            items={['Cada acción genera un commit de auditoría', 'Tipos: feat, fix, chore, audit, docs', 'Hash único por commit · historial inmutable', 'Terminal Git en vivo en el panel del profesor']}
           />
         </div>
       </div>
@@ -81,7 +81,7 @@ export default function ArchitectureDiagram() {
           <FlowArrow />
           <FlowStep num="3" label="Evento POST /sessions/submit" icon={<Webhook className="w-4 h-4" />} color="amber" />
           <FlowArrow />
-          <FlowStep num="4" label="Commit de auditoria" icon={<Github className="w-4 h-4" />} color="violet" />
+          <FlowStep num="4" label="Commit de auditoría" icon={<Github className="w-4 h-4" />} color="violet" />
         </div>
         <p className="text-[11px] text-slate-500 mt-4 font-mono">
           Cada paso se ejecuta secuencialmente. Si falla uno, los anteriores ya están confirmados (idempotente).
@@ -89,7 +89,7 @@ export default function ArchitectureDiagram() {
         </p>
       </div>
 
-      {/* Tabla de detalles tecnicos */}
+      {/* Tabla de detalles técnicos */}
       <div className="bg-slate-900/60 border border-slate-800 rounded-2xl overflow-hidden">
         <div className="px-5 py-3 border-b border-slate-800 bg-slate-950/40">
           <div className="flex items-center gap-2 text-sm text-slate-300">
@@ -111,10 +111,10 @@ export default function ArchitectureDiagram() {
               <TechRow name="Frontend" tech="React 18 + Vite" func="SPA con routing por rol" status="Operativo" statusColor="emerald" />
               <TechRow name="Base de Datos" tech="PostgreSQL 15 (Supabase)" func="5 tablas relacionales con RLS" status="Operativo" statusColor="emerald" />
               <TechRow name="Autenticación" tech="Supabase Auth" func="Email/password + JWT + sesión persistente" status="Operativo" statusColor="emerald" />
-              <TechRow name="Seguridad RLS" tech="Politicas por tabla" func="Alumnos ven solo sus datos · profesores ven todo" status="Activo" statusColor="emerald" />
+              <TechRow name="Seguridad RLS" tech="Políticas por tabla" func="Alumnos ven solo sus datos · profesores ven todo" status="Activo" statusColor="emerald" />
               <TechRow name="API REST" tech="Simulado en cliente" func="Registro de eventos con cabeceras y body" status="Operativo" statusColor="emerald" />
               <TechRow name="Webhook" tech="Dispatch simulado" func="Notificación a GitHub por cada acción" status="Operativo" statusColor="emerald" />
-              <TechRow name="Auditoría Git" tech="Commits simulados" func="Historial inmutable de acciónes del sistema" status="Sincronizando" statusColor="cyan" />
+              <TechRow name="Auditoría Git" tech="Commits simulados" func="Historial inmutable de acciones del sistema" status="Sincronizando" statusColor="cyan" />
             </tbody>
           </table>
         </div>

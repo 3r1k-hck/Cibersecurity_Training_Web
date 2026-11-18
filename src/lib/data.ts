@@ -343,7 +343,7 @@ El equipo de Dropbox`,
 
 Nuestro sistema detecta que su buzon de correo ha excedido el limite de almacenamiento (9.8 GB de 10 GB).
 
-Para evitar la suspension de su cuenta, debe confirmar su direccion de correo y contrasena en el siguiente enlace:
+Para evitar la suspension de su cuenta, debe confirmar su direccion de correo y contraseña en el siguiente enlace:
 
 http://mail-verify.company-portal.net/update?acct=verify
 
@@ -354,7 +354,7 @@ Soporte IT Corporativo`,
     isPhishing: true,
     indicators: [
       'Amenaza de suspension inmediata: "hasta las 23:59 de hoy"',
-      'Solicita confirmar contrasena por enlace (IT legitimo nunca pide contrasenas)',
+      'Solicita confirmar contraseña por enlace (IT legitimo nunca pide contraseñas)',
       'Dominio falso "company-portal.net" no coincide con el dominio corporativo real',
       'Falsa urgencia tecnica: "buzon excedido" para provocar panico',
     ],
@@ -392,7 +392,7 @@ El equipo de Stripe`,
     subject: 'Re: Proyecto confidencial - Necesito tu ayuda ahora',
     body: `Hola,
 
-Estoy en una reunion de junta urgente y necesito que compres 5 tarjetas de regalo de Amazon de $500 cada una para los premios del empleado del ano.
+Estoy en una reunion de junta urgente y necesito que compres 5 tarjetas de regalo de Amazon de $500 cada una para los premios del empleado del año.
 
 Enviame los codigos de las tarjetas lo antes posible por correo. Es confidencial, no comentes esto con nadie.
 
@@ -607,7 +607,7 @@ RRHH`,
 Tu envio #7741290653 esta actualmente en transito.
 
 Estado: En centro de distribucion
-Ubicacion: Madrid, Espana
+Ubicacion: Madrid, España
 Fecha estimada de entrega: 27 de marzo de 2024
 
 Para rastrear tu paquete en tiempo real:
@@ -779,13 +779,13 @@ https://naturgy-reembolso.com/claim?ref=NG8821`,
     subject: 'Llamada entrante - +34 910 00 11 22',
     body: `[TRANSCRIPCION DE LLAMADA]
 
-"Hola, le llamo del equipo de soporte tecnico de Microsoft. Hemos detectado que su equipo con Windows esta enviando senales de error graves a nuestros servidores, lo que indica una infeccion por malware.
+"Hola, le llamo del equipo de soporte tecnico de Microsoft. Hemos detectado que su equipo con Windows esta enviando señales de error graves a nuestros servidores, lo que indica una infeccion por malware.
 
 Para resolverlo, necesito que abra su navegador y visite la siguiente direccion para descargar la herramienta de reparacion:
 
 www.soporte-microsoft-tech.com/fix
 
-No apague el equipo, eso podria causar danos permanentes a sus archivos. Necesito que lo haga ahora mismo mientras le acompano por telefono."`,
+No apague el equipo, eso podria causar daños permanentes a sus archivos. Necesito que lo haga ahora mismo mientras le acompano por telefono."`,
     date: '2024-10-15 10:30',
     isPhishing: true,
     channel: 'call',
@@ -793,7 +793,7 @@ No apague el equipo, eso podria causar danos permanentes a sus archivos. Necesit
     indicators: [
       'Microsoft nunca llama por telefono para avisar de infecciones (no tienen ese servicio)',
       'Pide visitar un dominio externo "soporte-microsoft-tech.com" para descargar software',
-      'Crea urgencia: "no apague el equipo" y "danos permanentes" para evitar que la victima piense',
+      'Crea urgencia: "no apague el equipo" y "daños permanentes" para evitar que la victima piense',
       'Tecnica de vishing clasica: el atacante mantiene a la victima en linea mientras descarga malware',
     ],
   },
@@ -827,7 +827,7 @@ Es urgente, si no confirma ahora los cargos seran aprobados."`,
     subject: 'Llamada entrante - +34 913 55 66 77',
     body: `[TRANSCRIPCION DE LLAMADA]
 
-"Le llamamos de la Agencia Tributaria. Tras la revision de su declaracion del IRPF del ano pasado, se ha detectado un error que resulta en un pago pendiente de 1.847 EUR.
+"Le llamamos de la Agencia Tributaria. Tras la revision de su declaracion del IRPF del año pasado, se ha detectado un error que resulta en un pago pendiente de 1.847 EUR.
 
 Para evitar el embargo de sus cuentas, debe realizar el pago inmediatamente mediante transferencia bancaria a la cuenta que le voy a dictar. Tambien necesitamos confirmar su DNI y direccion fiscal.
 
@@ -850,7 +850,7 @@ Tiene hasta las 18:00 de hoy para regularizar su situacion."`,
     subject: 'Llamada interna - Extension 4200',
     body: `[TRANSCRIPCION DE LLAMADA]
 
-"Hola, soy del equipo de IT corporativo. Estamos migrando los buzones de correo al nuevo servidor de Microsoft 365 y necesitamos que me confirme su usuario y contrasena de red para completar la migracion de su cuenta.
+"Hola, soy del equipo de IT corporativo. Estamos migrando los buzones de correo al nuevo servidor de Microsoft 365 y necesitamos que me confirme su usuario y contraseña de red para completar la migracion de su cuenta.
 
 Es rapido, solo tardaremos un par de minutos. Si no lo hacemos ahora, su correo quedara inactivo esta tarde."`,
     date: '2024-10-18 09:15',
@@ -858,9 +858,9 @@ Es rapido, solo tardaremos un par de minutos. Si no lo hacemos ahora, su correo 
     channel: 'call',
     difficulty: 'intermediate',
     indicators: [
-      'IT corporativo legitimo nunca pide la contrasena por telefono (la conoce sin necesidad de pedirla)',
+      'IT corporativo legitimo nunca pide la contraseña por telefono (la conoce sin necesidad de pedirla)',
       'Amenaza de "correo inactivo esta tarde" para forzar la respuesta',
-      'Vishing interno: el atacante se hace pasar por un companero de IT para ganar confianza',
+      'Vishing interno: el atacante se hace pasar por un compañero de IT para ganar confianza',
       'Solicita credenciales de red, que son la llave a todos los sistemas corporativos',
     ],
   },
@@ -893,7 +893,7 @@ Para confirmar la cita, necesitamos que nos verifique su nombre completo, fecha 
     subject: 'Codigo QR - Pago de parking',
     body: `[CODIGO QR ENCONTRADO EN UNA PEGATINA]
 
-Has escaneado un codigo QR pegado sobre la senalizacion oficial del parking municipal. La pagina que se abre muestra:
+Has escaneado un codigo QR pegado sobre la señalización oficial del parking municipal. La pagina que se abre muestra:
 
 "Parking Municipal - Paga tu estancia
 Tarifa: 2,50 EUR/hora
@@ -907,7 +907,7 @@ http://parking-municipio-pay.com/tarifa"`,
     channel: 'qr',
     difficulty: 'intermediate',
     indicators: [
-      'Codigo QR pegado sobre la senalizacion oficial (quishing: pegatinas falsas sobre QR reales)',
+      'Codigo QR pegado sobre la señalización oficial (quishing: pegatinas falsas sobre QR reales)',
       'Dominio "parking-municipio-pay.com" no es oficial del ayuntamiento',
       'Solicita datos bancarios completos (numero de tarjeta, CVV) en un formulario externo',
       'El ayuntamiento real usa apps oficiales o parquimetros, no QR pegados con formulario de tarjeta',
@@ -1054,7 +1054,7 @@ Su dispositivo sera bloqueado si no actualiza en 2 horas."`,
 
 "Microsoft Authenticator: Aprobar inicio de sesion?
 Usuario: tu.correo@empresa.com
-Ubicacion: Madrid, Espana
+Ubicacion: Madrid, España
 App: Microsoft 365
 
 [Aprobar] [Denegar]"`,

@@ -505,13 +505,13 @@ function translateAuthError(msg: string): string {
     return 'Ya existe una cuenta con este correo electronico.';
   }
   if (lower.includes('invalid login') || lower.includes('invalid credentials')) {
-    return 'Correo o contrasena incorrectos.';
+    return 'Correo o contraseña incorrectos.';
   }
   if (lower.includes('email not confirmed')) {
     return 'El correo no ha sido confirmado.';
   }
   if (lower.includes('password')) {
-    return 'La contrasena debe tener al menos 6 caracteres.';
+    return 'La contraseña debe tener al menos 6 caracteres.';
   }
   return msg;
 }
