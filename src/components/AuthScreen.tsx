@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Shield, Lock, Mail, User as UserIcon, Eye, EyeOff, AlertTriangle, Loader2 } from 'lucide-react';
 import { useApp } from '@/context/AppContext';
+import ThemeToggle from '@/components/ThemeToggle';
 
 export default function AuthScreen() {
   const { register, login, loading } = useApp();
@@ -61,7 +62,10 @@ export default function AuthScreen() {
 
   return (
     <div className="min-h-screen grid-bg flex items-center justify-center p-4 relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#05070d] pointer-events-none" />
+      <div className="absolute top-4 right-4 z-10">
+        <ThemeToggle />
+      </div>
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#05070d] pointer-events-none dark:to-[#05070d] to-slate-100" />
       <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-emerald-500/10 rounded-full blur-[120px] pointer-events-none" />
       <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-[120px] pointer-events-none" />
 

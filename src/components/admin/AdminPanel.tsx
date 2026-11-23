@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Shield, LogOut, LayoutDashboard, Database, Webhook, Terminal, User as UserIcon, Users, Network } from 'lucide-react';
 import { useApp } from '@/context/AppContext';
+import ThemeToggle from '@/components/ThemeToggle';
 import AdminOverview from '@/components/admin/AdminOverview';
 import DatabaseTable from '@/components/admin/DatabaseTable';
 import ApiConsole from '@/components/admin/ApiConsole';
@@ -35,6 +36,7 @@ export default function AdminPanel() {
             </div>
           </div>
           <div className="flex items-center gap-3">
+            <ThemeToggle />
             <div className="flex items-center gap-2 text-sm text-slate-300">
               <UserIcon className="w-4 h-4 text-violet-400" />
               <span className="hidden sm:inline">{currentUser?.username}</span>

@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Mail, Brain, LayoutDashboard, LogOut, Shield, User as UserIcon, BookOpen, Award } from 'lucide-react';
 import { useApp } from '@/context/AppContext';
+import ThemeToggle from '@/components/ThemeToggle';
 import PhishingGame from '@/components/user/PhishingGame';
 import Quiz from '@/components/user/Quiz';
 import QuestionBank from '@/components/user/QuestionBank';
@@ -74,6 +75,7 @@ export default function UserPanel() {
             </div>
           </div>
           <div className="flex items-center gap-3">
+            <ThemeToggle />
             <div className="flex items-center gap-2 text-sm text-slate-300">
               <UserIcon className="w-4 h-4 text-emerald-400" />
               <span className="hidden sm:inline">{currentUser?.username}</span>
