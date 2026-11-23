@@ -68,7 +68,7 @@ export default function DatabaseTable() {
               <th className="text-left font-medium px-3 py-2.5 hidden sm:table-cell">Rol</th>
               <th className="text-right font-medium px-3 py-2.5"><SortHeader label="Intentos" k="attempts" /></th>
               <th className="text-right font-medium px-3 py-2.5"><SortHeader label="Mejor" k="bestScore" /></th>
-              <th className="text-left font-medium px-3 py-2.5 hidden md:table-cell"><SortHeader label="Ultima Actividad" k="lastActive" /></th>
+              <th className="text-left font-medium px-3 py-2.5 hidden md:table-cell"><SortHeader label="Última Actividad" k="lastActive" /></th>
               <th className="text-right font-medium px-5 py-2.5"></th>
             </tr>
           </thead>
@@ -128,7 +128,7 @@ function Row({ record, expanded, onToggle }: { record: UserRecord; expanded: boo
           <td colSpan={6} className="px-5 py-4 animate-fade-up">
             <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">Historial de Sesiones ({record.sessions.length})</p>
             {record.sessions.length === 0 ? (
-              <p className="text-sm text-slate-600">No hay sesiones completadas aun.</p>
+              <p className="text-sm text-slate-600">No hay sesiones completadas aún.</p>
             ) : (
               <div className="space-y-2">
                 {record.sessions.slice().reverse().map((s, i) => (

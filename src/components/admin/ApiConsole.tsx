@@ -57,7 +57,7 @@ export default function ApiConsole() {
           {active ? (
             <div className="space-y-4 animate-fade-up" key={active.id}>
               <div>
-                <p className="text-[10px] uppercase tracking-wide text-slate-500 mb-1.5 font-semibold">Peticion</p>
+                <p className="text-[10px] uppercase tracking-wide text-slate-500 mb-1.5 font-semibold">Petición</p>
                 <div className="flex items-center gap-2 mb-2">
                   <span className="text-xs font-mono font-bold text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded">{active.method}</span>
                   <code className="text-xs text-cyan-300 font-mono">{active.endpoint}</code>
@@ -77,7 +77,7 @@ export default function ApiConsole() {
               </div>
 
               <div>
-                <p className="text-[10px] uppercase tracking-wide text-slate-500 mb-1.5 font-semibold">Cuerpo de Peticion (JSON)</p>
+                <p className="text-[10px] uppercase tracking-wide text-slate-500 mb-1.5 font-semibold">Cuerpo de Petición (JSON)</p>
                 <pre className="bg-slate-950/60 border border-slate-800 rounded-lg p-3 font-mono text-xs text-slate-300 overflow-x-auto scrollbar-thin whitespace-pre-wrap break-all">
 {JSON.stringify(active.body, null, 2)}
                 </pre>
@@ -94,7 +94,7 @@ export default function ApiConsole() {
               </div>
             </div>
           ) : (
-            <p className="text-sm text-slate-600 text-center py-8">Selecciona un evento para inspeccionar la peticion.</p>
+            <p className="text-sm text-slate-600 text-center py-8">Selecciona un evento para inspeccionar la petición.</p>
           )}
         </div>
       </div>

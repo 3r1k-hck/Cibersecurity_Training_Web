@@ -191,7 +191,7 @@ Equipo de Seguridad Amazon`,
     id: 'pe-8',
     from: 'microsoft@security-team-msft.online',
     fromName: 'Microsoft 365',
-    subject: 'Su suscripcion de Office ha expirado - Renueve ahora',
+    subject: 'Su suscripción de Office ha expirado - Renueve ahora',
     body: `Hola,
 
 Su suscripcion a Microsoft 365 Office ha expirado. Para evitar la perdida de sus documentos y correos, renueve ahora mismo:
@@ -237,7 +237,7 @@ El equipo de Slack`,
     id: 'pe-10',
     from: 'delivery@dhl-express-tracking.info',
     fromName: 'DHL Express',
-    subject: 'Paquete no entregado - Confirmar direccion de envio',
+    subject: 'Paquete no entregado - Confirmar dirección de envío',
     body: `Estimado cliente,
 
 Intentamos entregar su paquete pero no estaba disponible. Su paquete sera devuelto en 48 horas si no confirma su direccion.
@@ -338,7 +338,7 @@ El equipo de Dropbox`,
     id: 'pe-14',
     from: 'it-helpdesk@company.com',
     fromName: 'Soporte IT Corporativo',
-    subject: 'Actualizacion de buzon requerida - Su cuenta sera suspendida',
+    subject: 'Actualización de buzón requerida - Su cuenta será suspendida',
     body: `Estimado usuario,
 
 Nuestro sistema detecta que su buzon de correo ha excedido el limite de almacenamiento (9.8 GB de 10 GB).
@@ -413,7 +413,7 @@ CEO`,
     id: 'pe-17',
     from: 'security@mailgun-protect.net',
     fromName: 'Equipo de Seguridad - Microsoft',
-    subject: 'Verificacion de cuenta de Microsoft 365 requerida',
+    subject: 'Verificación de cuenta de Microsoft 365 requerida',
     body: `Estimado usuario,
 
 Detectamos un intento de acceso no autorizado a su cuenta de Microsoft 365 desde una ubicacion desconocida (Moscu, Rusia).
@@ -518,7 +518,7 @@ Soporte Apple`,
     id: 'pe-21',
     from: 'noreply@spain-treasury.gov.es',
     fromName: 'Agencia Tributaria',
-    subject: 'Devolucion de impuestos disponible - 480 EUR',
+    subject: 'Devolución de impuestos disponible - 480 EUR',
     body: `Estimado contribuyente,
 
 Tras la revision de su declaracion de la renta 2023, se ha determinado que tiene derecho a una devolucion de 480 EUR.
@@ -544,7 +544,7 @@ Agencia Tributaria Espanola`,
     id: 'pe-22',
     from: 'alerts@chase-bank-secure.net',
     fromName: 'Chase Bank',
-    subject: 'Alerta de fraude: Transaccion sospechosa de $3,400.00',
+    subject: 'Alerta de fraude: Transacción sospechosa de $3,400.00',
     body: `Estimado cliente,
 
 Hemos detectado una transaccion sospechosa en su tarjeta de debito:
@@ -574,7 +574,7 @@ Departamento de Fraude - Chase Bank`,
     id: 'pe-23',
     from: 'feedback@google-forms-secure.io',
     fromName: 'RRHH - Encuesta Interna',
-    subject: 'Encuesta de satisfaccion laboral obligatoria',
+    subject: 'Encuesta de satisfacción laboral obligatoria',
     body: `Hola,
 
 El departamento de Recursos Humanos ha creado una encuesta de satisfaccion laboral obligatoria para todos los empleados.
@@ -601,7 +601,7 @@ RRHH`,
     id: 'pe-24',
     from: 'shipping@fedex.com',
     fromName: 'FedEx',
-    subject: 'Tu envio #7741290653 esta en transito',
+    subject: 'Tu envío #7741290653 está en tránsito',
     body: `Hola,
 
 Tu envio #7741290653 esta actualmente en transito.
@@ -735,7 +735,7 @@ https://www.amazon.es/your-orders?id=114-8821347`,
     id: 'pe-s7',
     from: '+34 655 88 21 00',
     fromName: 'Banco Santander',
-    subject: 'SMS - Verificacion de cuenta',
+    subject: 'SMS - Verificación de cuenta',
     body: `Santander: Hemos detectado un acceso no autorizado a su cuenta. Para proteger sus fondos, verifique su identidad inmediatamente:
 
 https://santander-verify.info/auth?id=9921
@@ -867,7 +867,7 @@ Es rapido, solo tardaremos un par de minutos. Si no lo hacemos ahora, su correo 
   {
     id: 'pe-v5',
     from: 'Llamada telefonica',
-    fromName: 'Clinica Medica Salud Plus',
+    fromName: 'Clínica Médica Salud Plus',
     subject: 'Llamada entrante - +34 914 77 88 99',
     body: `[TRANSCRIPCION DE LLAMADA]
 
@@ -890,7 +890,7 @@ Para confirmar la cita, necesitamos que nos verifique su nombre completo, fecha 
     id: 'pe-q1',
     from: 'Pegatina en la calle',
     fromName: 'Ayuntamiento - Parking',
-    subject: 'Codigo QR - Pago de parking',
+    subject: 'Código QR - Pago de parking',
     body: `[CODIGO QR ENCONTRADO EN UNA PEGATINA]
 
 Has escaneado un codigo QR pegado sobre la señalización oficial del parking municipal. La pagina que se abre muestra:
@@ -915,7 +915,7 @@ http://parking-municipio-pay.com/tarifa"`,
   },
   {
     id: 'pe-q2',
-    from: 'Email con codigo QR',
+    from: 'Email con código QR',
     fromName: 'Reembolso - Correos',
     subject: 'Correo con QR - Escanea para tu reembolso',
     body: `[CORREO CON CODIGO QR ADJUNTO]
@@ -942,7 +942,7 @@ Departamento de Reembolsos - Correos"`,
     id: 'pe-q3',
     from: 'Pegatina en restaurante',
     fromName: 'Restaurante La Tasca',
-    subject: 'Codigo QR - Carta del menu',
+    subject: 'Código QR - Carta del menú',
     body: `[CODIGO QR EN LA MESA DEL RESTAURANTE]
 
 Has escaneado el codigo QR de la mesa para ver la carta. La pagina que se abre muestra el menu normal del restaurante con precios y platos habituales.
@@ -960,7 +960,7 @@ https://latacca.es/menu`,
     id: 'pe-q4',
     from: 'Cartel en parada de autobus',
     fromName: 'Metro de Madrid',
-    subject: 'Codigo QR - Recarga de billete',
+    subject: 'Código QR - Recarga de billete',
     body: `[CODIGO QR EN UN CARTEL DE LA PARADA]
 
 Has escaneado un codigo QR en un cartel de la parada de metro que dice "Recarga tu billete aqui". La pagina que se abre muestra:
@@ -985,9 +985,9 @@ http://metro-madrid-recarga.com/pay"`,
   // ====== PUSH NOTIFICATIONS / APP PHISHING ======
   {
     id: 'pe-p1',
-    from: 'Notificacion push',
+    from: 'Notificación push',
     fromName: 'App Banca - CaixaBank',
-    subject: 'Push - Confirmacion de transferencia',
+    subject: 'Push - Confirmación de transferencia',
     body: `[NOTIFICACION PUSH EN EL MOVIL]
 
 "CaixaBank: Transferencia saliente de 1.500 EUR a beneficiario nuevo "MARIA GARCIA LOPEZ".
@@ -1008,9 +1008,9 @@ Si no reconoce esta transferencia, toque aqui para cancelarla inmediatamente:
   },
   {
     id: 'pe-p2',
-    from: 'Notificacion push',
+    from: 'Notificación push',
     fromName: 'WhatsApp',
-    subject: 'Push - Codigo de verificacion',
+    subject: 'Push - Código de verificación',
     body: `[NOTIFICACION PUSH EN EL MOVIL]
 
 "WhatsApp: Tu codigo de verificacion es 882-133. No lo compartas con nadie.
@@ -1024,9 +1024,9 @@ Si no solicitaste este codigo, alguien podria estar intentando acceder a tu cuen
   },
   {
     id: 'pe-p3',
-    from: 'Notificacion push',
+    from: 'Notificación push',
     fromName: 'Google Play',
-    subject: 'Push - Actualizacion de seguridad requerida',
+    subject: 'Push - Actualización de seguridad requerida',
     body: `[NOTIFICACION PUSH EN EL MOVIL]
 
 "Google Play Security: Se ha detectado una aplicacion maliciosa en su dispositivo. Instale urgentemente la actualizacion de seguridad de Google Play Protect desde:
@@ -1047,9 +1047,9 @@ Su dispositivo sera bloqueado si no actualiza en 2 horas."`,
   },
   {
     id: 'pe-p4',
-    from: 'Notificacion push',
+    from: 'Notificación push',
     fromName: 'Microsoft Authenticator',
-    subject: 'Push - Solicitud de aprobacion de login',
+    subject: 'Push - Solicitud de aprobación de login',
     body: `[NOTIFICACION PUSH EN EL MOVIL]
 
 "Microsoft Authenticator: Aprobar inicio de sesion?
@@ -1066,9 +1066,9 @@ App: Microsoft 365
   },
   {
     id: 'pe-p5',
-    from: 'Notificacion push',
+    from: 'Notificación push',
     fromName: 'Amazon Prime',
-    subject: 'Push - Suscripcion cancelada',
+    subject: 'Push - Suscripción cancelada',
     body: `[NOTIFICACION PUSH EN EL MOVIL]
 
 "Amazon Prime: Su suscripcion ha sido cancelada por un problema de pago. Para restaurar su cuenta y no perder sus series y peliculas, actualice su metodo de pago en:

@@ -104,7 +104,7 @@ export default function CertificateHistory() {
         <StatCard icon={<Award className="w-5 h-5" />} label="Certificados Obtenidos" value={certificates.length} color="amber" />
         <StatCard icon={<Brain className="w-5 h-5" />} label="Certificados de Quiz" value={quizCount} color="cyan" />
         <StatCard icon={<Mail className="w-5 h-5" />} label="Certificados de Phishing" value={phishingCount} color="emerald" />
-        <StatCard icon={<Calendar className="w-5 h-5" />} label="Ultimo Certificado" value={new Date(certificates[0].completedAt).toLocaleDateString('es-ES', { dateStyle: 'short' })} color="cyan" />
+        <StatCard icon={<Calendar className="w-5 h-5" />} label="Último Certificado" value={new Date(certificates[0].completedAt).toLocaleDateString('es-ES', { dateStyle: 'short' })} color="cyan" />
       </div>
 
       <div className="bg-slate-900/60 border border-slate-800 rounded-2xl overflow-hidden">

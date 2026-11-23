@@ -82,7 +82,7 @@ export default function AuthScreen() {
                 mode === 'login' ? 'bg-emerald-500 text-white shadow' : 'text-slate-400 hover:text-white'
               }`}
             >
-              Iniciar Sesion
+              Iniciar Sesión
             </button>
             <button
               onClick={() => { setMode('register'); setError(''); }}
@@ -120,7 +120,7 @@ export default function AuthScreen() {
                 type={showPass ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Minimo 6 caracteres"
+                placeholder="Mínimo 6 caracteres"
                 className="w-full bg-transparent text-sm text-white placeholder-slate-500 focus:outline-none"
               />
               <button type="button" onClick={() => setShowPass((v) => !v)} className="text-slate-500 hover:text-slate-300">
@@ -141,7 +141,7 @@ export default function AuthScreen() {
               className="w-full py-2.5 bg-gradient-to-r from-emerald-500 to-cyan-600 text-white text-sm font-semibold rounded-lg hover:from-emerald-400 hover:to-cyan-500 transition-all shadow-lg shadow-emerald-500/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
-              {mode === 'login' ? 'Iniciar Sesion' : 'Crear Cuenta y Empezar'}
+              {mode === 'login' ? 'Iniciar Sesión' : 'Crear Cuenta y Empezar'}
             </button>
           </form>
 

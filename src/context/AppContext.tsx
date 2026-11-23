@@ -353,7 +353,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     await supabase.auth.getSession();
 
     if (!data.user) {
-      return { ok: false, error: 'No se recibio informacion del usuario.' };
+      return { ok: false, error: 'No se recibió información del usuario.' };
     }
 
     // Try to load the profile directly
@@ -387,7 +387,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         insertCommit(
           data.user.id,
           `${email}@cybtrain.io`,
-          `feat: usuario '${email.split('@')[0]}' inicio sesion en la plataforma`,
+          `feat: usuario '${email.split('@')[0]}' inicio sesión en la plataforma`,
         ),
       ]);
     }
@@ -400,7 +400,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       await insertCommit(
         currentUser.id,
         `${currentUser.username}@cybtrain.io`,
-        `chore: usuario '${currentUser.username}' cerro sesion`,
+        `chore: usuario '${currentUser.username}' cerró sesión`,
         'chore',
       );
     }
@@ -475,7 +475,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     await insertCommit(
       currentUser.id,
       `${currentUser.username}@cybtrain.io`,
-      `feat: actualizar puntuacion_usuario hash: #${gitHash()} (total=${result.totalScore})`,
+      `feat: actualizar puntuación_usuario hash: #${gitHash()} (total=${result.totalScore})`,
     );
 
     await loadData(currentUser);
@@ -502,7 +502,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 function translateAuthError(msg: string): string {
   const lower = msg.toLowerCase();
   if (lower.includes('already registered') || lower.includes('already been registered')) {
-    return 'Ya existe una cuenta con este correo electronico.';
+    return 'Ya existe una cuenta con este correo electrónico.';
   }
   if (lower.includes('invalid login') || lower.includes('invalid credentials')) {
     return 'Correo o contraseña incorrectos.';

@@ -19,17 +19,17 @@ interface Props {
 }
 
 const channelMeta: Record<PhishingChannel, { icon: React.ReactNode; label: string; hint: string }> = {
-  email: { icon: <Mail className="w-4 h-4" />, label: 'Correo electronico', hint: 'Simulador de Bandeja de Entrada' },
-  sms: { icon: <MessageSquare className="w-4 h-4" />, label: 'Mensaje SMS', hint: 'Simulador de Mensajes Moviles' },
-  call: { icon: <Phone className="w-4 h-4" />, label: 'Llamada telefonica', hint: 'Simulador de Llamadas (Vishing)' },
-  qr: { icon: <QrCode className="w-4 h-4" />, label: 'Codigo QR', hint: 'Simulador de Codigo QR (Quishing)' },
-  push: { icon: <Bell className="w-4 h-4" />, label: 'Notificacion push', hint: 'Simulador de Notificaciones Push' },
+  email: { icon: <Mail className="w-4 h-4" />, label: 'Correo electrónico', hint: 'Simulador de Bandeja de Entrada' },
+  sms: { icon: <MessageSquare className="w-4 h-4" />, label: 'Mensaje SMS', hint: 'Simulador de Mensajes Móviles' },
+  call: { icon: <Phone className="w-4 h-4" />, label: 'Llamada telefónica', hint: 'Simulador de Llamadas (Vishing)' },
+  qr: { icon: <QrCode className="w-4 h-4" />, label: 'Código QR', hint: 'Simulador de Código QR (Quishing)' },
+  push: { icon: <Bell className="w-4 h-4" />, label: 'Notificación push', hint: 'Simulador de Notificaciones Push' },
 };
 
 const difficultyMeta: Record<PhishingDifficulty, { label: string; description: string; icon: React.ReactNode; color: string; ring: string; bg: string; text: string }> = {
   beginner: {
     label: 'Principiante',
-    description: 'Correos y SMS obvios con dominios falsos, errores tipograficos y urgencia extrema. Ideal para empezar.',
+    description: 'Correos y SMS obvios con dominios falsos, errores tipográficos y urgencia extrema. Ideal para empezar.',
     icon: <Snowflake className="w-5 h-5" />,
     color: 'emerald',
     ring: 'hover:border-emerald-500/60',
@@ -38,7 +38,7 @@ const difficultyMeta: Record<PhishingDifficulty, { label: string; description: s
   },
   intermediate: {
     label: 'Intermedio',
-    description: 'Spear phishing, BEC, vishing y quishing con indicios sutiles. Requiere atencion al detalle.',
+    description: 'Spear phishing, BEC, vishing y quishing con indicios sutiles. Requiere atención al detalle.',
     icon: <Zap className="w-5 h-5" />,
     color: 'amber',
     ring: 'hover:border-amber-500/60',
@@ -47,7 +47,7 @@ const difficultyMeta: Record<PhishingDifficulty, { label: string; description: s
   },
   advanced: {
     label: 'Avanzado',
-    description: 'Mensajes legitimos que parecen phishing, QR enganosos y push dificiles de clasificar. Para expertos.',
+    description: 'Mensajes legitimos que parecen phishing, QR engañosos y push díficiles de clasificar. Para expertos.',
     icon: <Flame className="w-5 h-5" />,
     color: 'rose',
     ring: 'hover:border-rose-500/60',
@@ -177,7 +177,7 @@ export default function PhishingGame({ onComplete, bestScore, username }: Props)
           <div className="pt-2">
             <p className="text-xs text-slate-500 text-center">
               Cada partida selecciona {MAX_PHISHING_QUESTIONS} mensajes al azar del nivel elegido.
-              {bestScore > 0 && <span className="block mt-1">Tu mejor puntuacion: {bestScore} / {MAX_PHISHING_QUESTIONS}</span>}
+              {bestScore > 0 && <span className="block mt-1">Tu mejor puntuación: {bestScore} / {MAX_PHISHING_QUESTIONS}</span>}
             </p>
           </div>
         </div>
@@ -192,7 +192,7 @@ export default function PhishingGame({ onComplete, bestScore, username }: Props)
         <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-emerald-500/15 mb-4">
           <Trophy className="w-8 h-8 text-emerald-400" />
         </div>
-        <h3 className="text-xl font-bold text-white">Modulo de Phishing Completado</h3>
+        <h3 className="text-xl font-bold text-white">Módulo de Phishing Completado</h3>
         <p className="text-slate-400 mt-2">Nivel <span className={difficultyMeta[difficulty].text + ' font-semibold'}>{difficultyMeta[difficulty].label}</span></p>
         <p className="text-slate-400 mt-1">Identificaste correctamente <span className="text-emerald-400 font-bold">{score}</span> de {emails.length} mensajes.</p>
         {isPassing(score, emails.length) ? (
@@ -208,7 +208,7 @@ export default function PhishingGame({ onComplete, bestScore, username }: Props)
             <Shield className="w-4 h-4" /> Cambiar nivel
           </button>
         </div>
-        <p className="text-xs text-slate-600 mt-4">Tu mejor puntuacion hasta ahora: {bestScore} / {MAX_PHISHING_QUESTIONS}</p>
+        <p className="text-xs text-slate-600 mt-4">Tu mejor puntuación hasta ahora: {bestScore} / {MAX_PHISHING_QUESTIONS}</p>
       </div>
     );
   }
@@ -246,7 +246,7 @@ export default function PhishingGame({ onComplete, bestScore, username }: Props)
               className="flex flex-col items-center gap-2 py-4 border border-slate-700 hover:border-emerald-500/60 hover:bg-emerald-500/5 rounded-xl transition-all group"
             >
               <CheckCircle2 className="w-6 h-6 text-slate-500 group-hover:text-emerald-400" />
-              <span className="text-sm font-medium text-slate-300 group-hover:text-white">Legitimo</span>
+              <span className="text-sm font-medium text-slate-300 group-hover:text-white">Legítimo</span>
             </button>
             <button
               onClick={() => choose('phishing')}
@@ -269,7 +269,7 @@ export default function PhishingGame({ onComplete, bestScore, username }: Props)
                   {lastChoice === (email.isPhishing ? 'phishing' : 'real') ? 'Correcto!' : 'Incorrecto.'}
                 </p>
                 <p className="text-slate-400 mt-0.5">
-                  Este {ch === 'email' ? 'correo' : ch === 'sms' ? 'SMS' : ch === 'call' ? 'mensaje de llamada' : ch === 'qr' ? 'codigo QR' : 'mensaje push'} es <span className={email.isPhishing ? 'text-rose-400' : 'text-emerald-400'}>{email.isPhishing ? 'un intento de PHISHING' : 'LEGITIMO'}</span>.
+                  Este {ch === 'email' ? 'correo' : ch === 'sms' ? 'SMS' : ch === 'call' ? 'mensaje de llamada' : ch === 'qr' ? 'código QR' : 'mensaje push'} es <span className={email.isPhishing ? 'text-rose-400' : 'text-emerald-400'}>{email.isPhishing ? 'un intento de PHISHING' : 'LEGÍTIMO'}</span>.
                 </p>
               </div>
             </div>
@@ -295,7 +295,7 @@ export default function PhishingGame({ onComplete, bestScore, username }: Props)
               onClick={next}
               className="w-full inline-flex items-center justify-center gap-2 py-2.5 bg-gradient-to-r from-emerald-500 to-cyan-600 text-white text-sm font-semibold rounded-lg hover:from-emerald-400 hover:to-cyan-500 transition-all"
             >
-              {idx + 1 >= emails.length ? 'Finalizar modulo' : 'Siguiente mensaje'} <ArrowRight className="w-4 h-4" />
+              {idx + 1 >= emails.length ? 'Finalizar módulo' : 'Siguiente mensaje'} <ArrowRight className="w-4 h-4" />
             </button>
           </div>
         )}
@@ -356,7 +356,7 @@ function CallCard({ email }: { email: PhishingEmail }) {
       </div>
       <div className="flex items-center gap-2 mb-2">
         <span className="inline-flex items-center gap-1 text-[10px] font-mono text-cyan-400 bg-cyan-500/10 border border-cyan-500/20 rounded-full px-2 py-0.5">
-          <Phone className="w-3 h-3" /> TRANSCRIPCION DE LLAMADA
+          <Phone className="w-3 h-3" /> TRANSCRIPCIÓN DE LLAMADA
         </span>
       </div>
       <div className="bg-slate-900/60 border border-slate-700/50 rounded-xl px-4 py-3">
@@ -384,7 +384,7 @@ function QrCard({ email }: { email: PhishingEmail }) {
           <QrCode className="w-16 h-16 text-slate-900" />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-[10px] font-mono text-amber-400 bg-amber-500/10 border border-amber-500/20 rounded-full px-2 py-0.5 inline-block mb-2">CODIGO QR ESCANEADO</p>
+          <p className="text-[10px] font-mono text-amber-400 bg-amber-500/10 border border-amber-500/20 rounded-full px-2 py-0.5 inline-block mb-2">CÓDIGO QR ESCANEADO</p>
           <p className="text-xs text-slate-400 whitespace-pre-wrap leading-relaxed">{email.body}</p>
         </div>
       </div>
@@ -408,7 +408,7 @@ function PushCard({ email }: { email: PhishingEmail }) {
       <div className="bg-slate-900/60 border border-slate-700/50 rounded-xl px-4 py-3">
         <p className="text-sm text-slate-300 whitespace-pre-wrap leading-relaxed">{email.body}</p>
       </div>
-      <p className="text-xs text-slate-600 mt-2 text-right">Notificacion push</p>
+      <p className="text-xs text-slate-600 mt-2 text-right">Notificación push</p>
     </div>
   );
 }

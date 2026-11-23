@@ -36,7 +36,7 @@ export default function UserDashboard() {
         <StatCard icon={<Award className="w-5 h-5" />} label="Mejor Puntuación" value={`${stats.best}`} sub={`de ${maxTotal}`} color="emerald" />
         <StatCard icon={<Target className="w-5 h-5" />} label="Puntuación Media" value={`${stats.avg}`} sub={`de ${maxTotal}`} color="cyan" />
         <StatCard icon={<TrendingUp className="w-5 h-5" />} label="Intentos" value={`${stats.attempts}`} sub="completados" color="blue" />
-        <StatCard icon={<ShieldCheck className="w-5 h-5" />} label="Ultimo Total" value={`${stats.last?.total ?? 0}`} sub={`de ${maxTotal}`} color="violet" />
+        <StatCard icon={<ShieldCheck className="w-5 h-5" />} label="Último Total" value={`${stats.last?.total ?? 0}`} sub={`de ${maxTotal}`} color="violet" />
       </div>
 
       <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-5">
@@ -45,12 +45,12 @@ export default function UserDashboard() {
           <h3 className="text-sm font-semibold text-white">Tendencia de Puntuación por Sesión</h3>
         </div>
         <LineChart data={trend.length ? trend : [{ label: '—', value: 0 }]} color="#22c55e" height={170} />
-        {trend.length === 0 && <p className="text-center text-xs text-slate-600 -mt-12 mb-3 pointer-events-none">Completa una sesion para ver tu progreso</p>}
+        {trend.length === 0 && <p className="text-center text-xs text-slate-600 -mt-12 mb-3 pointer-events-none">Completa una sesión para ver tu progreso</p>}
       </div>
 
       {stats.last && (
         <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-5">
-          <h3 className="text-sm font-semibold text-white mb-3">Desglose de la Ultima Sesión</h3>
+          <h3 className="text-sm font-semibold text-white mb-3">Desglose de la Última Sesión</h3>
           <div className="grid grid-cols-3 gap-3">
             <MiniStat icon={<ShieldCheck className="w-4 h-4" />} label="Phishing" value={`${stats.last.phishing}/${MAX_QUESTIONS}`} color="emerald" />
             <MiniStat icon={<Brain className="w-4 h-4" />} label="Quiz" value={`${stats.last.quiz}/${MAX_QUESTIONS}`} color="cyan" />

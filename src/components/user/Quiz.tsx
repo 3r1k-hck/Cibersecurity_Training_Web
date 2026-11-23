@@ -68,7 +68,7 @@ export default function Quiz({ onComplete, username }: Props) {
           <Trophy className="w-8 h-8 text-cyan-400" />
         </div>
         <h3 className="text-xl font-bold text-white">Quiz completado</h3>
-        <p className="text-slate-400 mt-2">Tu puntuacion: <span className="text-cyan-400 font-bold">{score}</span> / {questions.length}.</p>
+        <p className="text-slate-400 mt-2">Tu puntuación: <span className="text-cyan-400 font-bold">{score}</span> / {questions.length}.</p>
         {passing ? (
           <Certificate username={username} score={score} total={questions.length} date={Date.now()} course="quiz" />
         ) : (
@@ -137,7 +137,7 @@ export default function Quiz({ onComplete, username }: Props) {
 
         {revealed && (
           <div className="bg-slate-950/50 border border-slate-800 rounded-xl p-4 mb-4 animate-fade-up">
-            <p className="text-xs font-semibold text-cyan-400 uppercase tracking-wide mb-1">Explicacion</p>
+            <p className="text-xs font-semibold text-cyan-400 uppercase tracking-wide mb-1">Explicación</p>
             <p className="text-sm text-slate-300 leading-relaxed">{q.explanation}</p>
           </div>
         )}

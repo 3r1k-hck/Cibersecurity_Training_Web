@@ -53,26 +53,26 @@ export default function AdminOverview() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <Card icon={<Users className="w-5 h-5" />} label="Alumnos Totales" value={stats.totalUsers} color="emerald" />
         <Card icon={<Activity className="w-5 h-5" />} label="Sesiones Totales" value={stats.totalSessions} color="cyan" />
-        <Card icon={<Award className="w-5 h-5" />} label="Mejor Puntuacion Media" value={`${stats.avgBest}/${maxTotal}`} color="blue" />
-        <Card icon={<GitCommit className="w-5 h-5" />} label="Commits de Auditoria" value={commits.length} color="violet" />
+        <Card icon={<Award className="w-5 h-5" />} label="Mejor Puntuación Media" value={`${stats.avgBest}/${maxTotal}`} color="blue" />
+        <Card icon={<GitCommit className="w-5 h-5" />} label="Commits de Auditoría" value={commits.length} color="violet" />
       </div>
 
       <div className="grid lg:grid-cols-3 gap-4">
         <div className="lg:col-span-2 bg-slate-900/60 border border-slate-800 rounded-2xl p-5">
-          <h3 className="text-sm font-semibold text-white mb-1">Mejores Puntuaciones</h3>
+          <h3 className="text-sm font-semibold text-white mb-1">Mejores Puntuaciónes</h3>
           <p className="text-xs text-slate-500 mb-3">Mejor puntuacion por alumno (max {maxTotal})</p>
           <BarChart data={scoreBars.length ? scoreBars : [{ label: '—', value: 0 }]} height={200} />
         </div>
         <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-5">
           <h3 className="text-sm font-semibold text-white mb-1">Roles de Alumnos</h3>
-          <p className="text-xs text-slate-500 mb-4">Distribucion de cuentas</p>
+          <p className="text-xs text-slate-500 mb-4">Distribución de cuentas</p>
           <DonutChart segments={roleDonut} size={150} />
         </div>
       </div>
 
       <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-5">
-        <h3 className="text-sm font-semibold text-white mb-1">Actividad API (7 dias)</h3>
-        <p className="text-xs text-slate-500 mb-3">Eventos webhook enviados por dia</p>
+        <h3 className="text-sm font-semibold text-white mb-1">Actividad API (7 días)</h3>
+        <p className="text-xs text-slate-500 mb-3">Eventos webhook enviados por día</p>
         <LineChart data={activityLine} color="#0891b2" height={160} />
       </div>
     </div>

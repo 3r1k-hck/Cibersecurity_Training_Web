@@ -33,7 +33,7 @@ export default function UserPanel() {
     };
     saveSessionResult(result);
     setPhishingResult({ score: r.phishingScore, answers: r.phishingAnswers });
-    setToast('Modulo de phishing guardado en tu progreso.');
+    setToast('Módulo de phishing guardado en tu progreso.');
     setTimeout(() => setToast(''), 4000);
   }
 

@@ -32,7 +32,7 @@ interface CourseStyle {
 
 const COURSE_STYLES: Record<CertificateCourse, CourseStyle> = {
   quiz: {
-    requirement: 'por completar el modulo de quiz de seguridad',
+    requirement: 'por completar el módulo de quiz de seguridad',
     resultLabel: 'respuestas correctas',
     subtitle: 'Concienciación en Ciberseguridad',
     accent: '#0d9488',
@@ -40,9 +40,9 @@ const COURSE_STYLES: Record<CertificateCourse, CourseStyle> = {
     thin: '#0891b2',
   },
   phishing: {
-    requirement: 'por completar el juego de deteccion de phishing',
+    requirement: 'por completar el juego de detección de phishing',
     resultLabel: 'mensajes identificados correctamente',
-    subtitle: 'Detección de Phishing y Ingenieria Social',
+    subtitle: 'Detección de Phishing e Ingeniería Social',
     accent: '#b45309',
     accentMid: '#d97706',
     thin: '#b45309',
@@ -148,7 +148,7 @@ export function drawCertificate(ctx: CanvasRenderingContext2D, w: number, h: num
 
   ctx.fillStyle = '#64748b';
   ctx.font = '16px Georgia, serif';
-  ctx.fillText('CERTIFICADO DE FINALIZACION', w / 2, 145);
+  ctx.fillText('CERTIFICADO DE FINALIZACIÓN', w / 2, 145);
 
   ctx.strokeStyle = '#cbd5e1';
   ctx.lineWidth = 1;
@@ -159,7 +159,7 @@ export function drawCertificate(ctx: CanvasRenderingContext2D, w: number, h: num
 
   ctx.fillStyle = '#0f172a';
   ctx.font = '36px Georgia, serif';
-  ctx.fillText('Certificado de Formacion en', w / 2, 230);
+  ctx.fillText('Certificado de Formación en', w / 2, 230);
   ctx.font = 'bold 36px Georgia, serif';
   ctx.fillStyle = s.accent;
   ctx.fillText(s.subtitle, w / 2, 270);
@@ -183,7 +183,7 @@ export function drawCertificate(ctx: CanvasRenderingContext2D, w: number, h: num
   ctx.fillStyle = '#475569';
   ctx.font = '16px Georgia, serif';
   ctx.fillText(s.requirement, w / 2, 420);
-  ctx.fillText(`con una puntuacion de ${score} de ${total} ${s.resultLabel}`, w / 2, 444);
+  ctx.fillText(`con una puntuación de ${score} de ${total} ${s.resultLabel}`, w / 2, 444);
 
   const pct = Math.round((score / total) * 100);
   ctx.fillStyle = s.accent;
@@ -228,7 +228,7 @@ export function drawCertificate(ctx: CanvasRenderingContext2D, w: number, h: num
   ctx.textAlign = 'center';
   ctx.fillStyle = '#94a3b8';
   ctx.font = '12px Georgia, serif';
-  ctx.fillText('CyberTrain Platform - Certificado verificado electronicamente', w / 2, h - 45);
+  ctx.fillText('CyberTrain Platform - Certificado verificado electrónicamente', w / 2, h - 45);
 
   const vCode = verificationCode(data);
 
@@ -241,7 +241,7 @@ export function drawCertificate(ctx: CanvasRenderingContext2D, w: number, h: num
 
   ctx.fillStyle = '#64748b';
   ctx.font = '11px Georgia, serif';
-  ctx.fillText('Codigo de verificación', w / 2, h - 22);
+  ctx.fillText('Código de verificación', w / 2, h - 22);
   ctx.fillStyle = '#0f172a';
   ctx.font = 'bold 13px Georgia, serif';
   ctx.fillText(vCode, w / 2, h - 8);
