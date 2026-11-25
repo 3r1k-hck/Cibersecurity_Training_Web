@@ -3,6 +3,7 @@ import { Brain, CheckCircle2, XCircle, ArrowRight, RotateCcw, Trophy, Target, Cl
 import { quizQuestions, type QuizQuestion } from '@/lib/data';
 import type { QuizAnswerRecord } from '@/types';
 import Certificate, { isPassing } from '@/components/user/Certificate';
+import AchievementBadges from '@/components/user/AchievementBadges';
 
 const MAX_QUESTIONS = 10;
 
@@ -81,6 +82,8 @@ export default function Quiz({ onComplete, username }: Props) {
           <Stat icon={<Percent className="w-4 h-4" />} label="Precisión" value={`${Math.round((score / questions.length) * 100)}%`} sub="de aciertos" color="cyan" />
           <Stat icon={<Clock className="w-4 h-4" />} label="Tiempo" value={formatDuration(durationSeconds)} sub="dedicado" color="blue" />
         </div>
+
+        <AchievementBadges score={score} total={questions.length} durationSeconds={durationSeconds} />
 
         {passing ? (
           <Certificate username={username} score={score} total={questions.length} date={Date.now()} course="quiz" />
