@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Brain, CheckCircle2, XCircle, ArrowRight, RotateCcw, Trophy } from 'lucide-react';
+import { useRef, useState } from 'react';
+import { Brain, CheckCircle2, XCircle, ArrowRight, RotateCcw, Trophy, Target, Clock, Percent } from 'lucide-react';
 import { quizQuestions, type QuizQuestion } from '@/lib/data';
 import type { QuizAnswerRecord } from '@/types';
 import Certificate, { isPassing } from '@/components/user/Certificate';
@@ -12,7 +12,7 @@ function shuffleAndPick<T>(items: T[], count: number): T[] {
 }
 
 interface Props {
-  onComplete: (score: number, answers: QuizAnswerRecord[]) => void;
+  onComplete: (score: number, answers: QuizAnswerRecord[], durationSeconds: number) => void;
   username: string;
 }
 
@@ -23,6 +23,8 @@ export default function Quiz({ onComplete, username }: Props) {
   const [revealed, setRevealed] = useState(false);
   const [answers, setAnswers] = useState<QuizAnswerRecord[]>([]);
   const [finished, setFinished] = useState(false);
+  const startedAt = useRef(Date.now());
+  const [durationSeconds, setDurationSeconds] = useState(0);
 
   const q = questions[idx];
 
@@ -41,8 +43,10 @@ export default function Quiz({ onComplete, username }: Props) {
   function next() {
     if (idx + 1 >= questions.length) {
       const score = answers.reduce((s, a) => (a.correct ? s + 1 : s), 0);
+      const seconds = Math.max(1, Math.round((Date.now() - startedAt.current) / 1000));
+      setDurationSeconds(seconds);
       setFinished(true);
-      onComplete(score, answers);
+      onComplete(score, answers, seconds);
     } else {
       setIdx((i) => i + 1);
       setSelected(null);
@@ -57,6 +61,8 @@ export default function Quiz({ onComplete, username }: Props) {
     setRevealed(false);
     setAnswers([]);
     setFinished(false);
+    startedAt.current = Date.now();
+    setDurationSeconds(0);
   }
 
   if (finished) {
@@ -69,6 +75,13 @@ export default function Quiz({ onComplete, username }: Props) {
         </div>
         <h3 className="text-xl font-bold text-white">Quiz completado</h3>
         <p className="text-slate-400 mt-2">Tu puntuación: <span className="text-cyan-400 font-bold">{score}</span> / {questions.length}.</p>
+
+        <div className="grid grid-cols-3 gap-3 mt-5 max-w-md mx-auto">
+          <Stat icon={<CheckCircle2 className="w-4 h-4" />} label="Correctas" value={`${score}`} sub={`de ${questions.length}`} color="emerald" />
+          <Stat icon={<Percent className="w-4 h-4" />} label="Precisión" value={`${Math.round((score / questions.length) * 100)}%`} sub="de aciertos" color="cyan" />
+          <Stat icon={<Clock className="w-4 h-4" />} label="Tiempo" value={formatDuration(durationSeconds)} sub="dedicado" color="blue" />
+        </div>
+
         {passing ? (
           <Certificate username={username} score={score} total={questions.length} date={Date.now()} course="quiz" />
         ) : (
@@ -159,6 +172,28 @@ export default function Quiz({ onComplete, username }: Props) {
           </button>
         )}
       </div>
+    </div>
+  );
+}
+
+function formatDuration(seconds: number): string {
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return m > 0 ? `${m}m ${s.toString().padStart(2, '0')}s` : `${s}s`;
+}
+
+function Stat({ icon, label, value, sub, color }: { icon: React.ReactNode; label: string; value: string; sub: string; color: string }) {
+  const colors: Record<string, string> = {
+    emerald: 'text-emerald-400',
+    cyan: 'text-cyan-400',
+    blue: 'text-blue-400',
+  };
+  return (
+    <div className="bg-slate-950/40 border border-slate-800 rounded-xl p-3">
+      <span className={`inline-flex ${colors[color]} mb-1`}>{icon}</span>
+      <p className={`text-lg font-bold ${colors[color]}`}>{value}</p>
+      <p className="text-xs text-slate-400">{label}</p>
+      <p className="text-[10px] text-slate-600 font-mono">{sub}</p>
     </div>
   );
 }

@@ -29,6 +29,7 @@ export interface SessionResult {
   phishingAnswers: PhishingAnswerRecord[];
   quizAnswers: QuizAnswerRecord[];
   completedAt: number;
+  durationSeconds?: number;
 }
 
 export interface UserRecord {
@@ -69,6 +70,7 @@ export interface SessionRow {
   phishing_score: number;
   quiz_score: number;
   total_score: number;
+  duration_seconds: number | null;
   completed_at: string;
 }
 

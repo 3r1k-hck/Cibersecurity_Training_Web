@@ -261,6 +261,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           phishingAnswers: [],
           quizAnswers: [],
           completedAt: new Date(s.completed_at).getTime(),
+          durationSeconds: s.duration_seconds ?? undefined,
         })),
         bestScore,
         attempts: userSessions.length,
@@ -422,6 +423,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         phishing_score: result.phishingScore,
         quiz_score: result.quizScore,
         total_score: result.totalScore,
+        duration_seconds: result.durationSeconds ?? null,
       })
       .select()
       .single();

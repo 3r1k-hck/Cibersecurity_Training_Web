@@ -20,7 +20,7 @@ export default function UserPanel() {
     [myRecord],
   );
   const [phishingResult, setPhishingResult] = useState<{ score: number; answers: PhishingAnswerRecord[] } | null>(null);
-  const [quizResult, setQuizResult] = useState<{ score: number; answers: QuizAnswerRecord[] } | null>(null);
+  const [quizResult, setQuizResult] = useState<{ score: number; answers: QuizAnswerRecord[]; durationSeconds: number } | null>(null);
   const [toast, setToast] = useState('');
 
   function handlePhishingComplete(r: { phishingScore: number; phishingAnswers: PhishingAnswerRecord[] }) {
@@ -38,7 +38,7 @@ export default function UserPanel() {
     setTimeout(() => setToast(''), 4000);
   }
 
-  function handleQuizComplete(score: number, answers: QuizAnswerRecord[]) {
+  function handleQuizComplete(score: number, answers: QuizAnswerRecord[], durationSeconds: number) {
     const result: SessionResult = {
       phishingScore: phishingResult?.score ?? 0,
       quizScore: score,
@@ -46,9 +46,10 @@ export default function UserPanel() {
       phishingAnswers: phishingResult?.answers ?? [],
       quizAnswers: answers,
       completedAt: Date.now(),
+      durationSeconds,
     };
     saveSessionResult(result);
-    setQuizResult({ score, answers });
+    setQuizResult({ score, answers, durationSeconds });
     setToast('Quiz guardado en tu progreso.');
     setTimeout(() => setToast(''), 5000);
   }
